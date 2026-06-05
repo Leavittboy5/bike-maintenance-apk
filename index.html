@@ -133,7 +133,7 @@
         <div class="flex flex-col items-end">
             <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Odometer</div>
             <div class="flex items-center text-sm font-mono font-bold text-zinc-900 dark:text-white">
-                <input id="odometer-input" type="number" step="0.1" onchange="updateOdometer(this.value)" class="bg-transparent w-14 text-right outline-none focus:text-emerald-400 transition" value="204.6">
+                <span id="odometer-display">204.6</span>
                 <span class="text-zinc-500 ml-1">mi</span>
             </div>
         </div>
@@ -166,10 +166,31 @@
                         <div class="bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">LBS</div>
                     </div>
                     <p class="text-[10px] text-zinc-500 leading-relaxed text-center">Updates fork physics calculations and AI context automatically.</p>
+
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                        <i class="fa-solid fa-ruler-vertical text-sky-400"></i> Rider Height Profile
+                    </label>
+                    <div class="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2 rounded-2xl">
+                        <input type="number" id="settings-height-input" onchange="updateRiderHeight(this.value)" class="flex-grow bg-transparent text-xl font-black text-zinc-900 dark:text-white px-3 focus:outline-none text-center" value="70">
+                        <div class="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">IN</div>
+                    </div>
+                    <p class="text-[10px] text-zinc-700 dark:text-zinc-300 leading-relaxed text-center">Provides proper bike fit AI context.</p>
                 </div>
                 
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                        <i class="fa-solid fa-gauge text-sky-400"></i> Odometer
+                    </label>
+                    <div class="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2 rounded-2xl">
+                        <input type="number" step="0.1" id="settings-odometer-input" onchange="updateOdometer(this.value)" class="flex-grow bg-transparent text-xl font-black text-zinc-900 dark:text-white px-3 focus:outline-none text-center" value="204.6">
+                        <div class="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">MI</div>
+                    </div>
+                </div>
+                </div>
+
                 <div class="border-t border-zinc-200 dark:border-zinc-800"></div>
-                
+
                 <div class="border-t border-zinc-200 dark:border-zinc-800"></div>
 
                 <!-- Theme Toggle -->
@@ -480,7 +501,7 @@
 
         // --- 1. Data Structure & Hotspot Configurations ---
         const DB_KEY = 'ramblas_adv_local_v3';
-        let appState = { odometer: 204.6, riderWeight: 217, history: [] };
+        let appState = { odometer: 204.6, riderWeight: 217, riderHeight: 70, history: [] };
         let currentHotspot = 'fork';
         let currentCalDate = new Date();
 
@@ -510,6 +531,7 @@
             if(!appState.history) appState.history = [];
             if(!appState.odometer) appState.odometer = 204.6;
             if(!appState.riderWeight) appState.riderWeight = 217;
+            if(!appState.riderHeight) appState.riderHeight = 70;
         }
 
         function saveState() {
@@ -533,6 +555,8 @@
             const content = document.getElementById('settings-content');
             if (show) {
                 document.getElementById('settings-weight-input').value = appState.riderWeight;
+                document.getElementById('settings-height-input').value = appState.riderHeight;
+                document.getElementById('settings-odometer-input').value = appState.odometer;
                 modal.classList.remove('hidden');
                 setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
             } else {
@@ -550,6 +574,12 @@
             updateUIFromState();
         };
 
+        window.updateRiderHeight = function(val) {
+            appState.riderHeight = parseInt(val) || 70;
+            saveState();
+            updateUIFromState();
+        };
+
         window.updateRiderWeight = function(val) {
             appState.riderWeight = parseInt(val) || 217;
             saveState();
@@ -558,7 +588,7 @@
         };
 
         function updateUIFromState() {
-            document.getElementById('odometer-input').value = appState.odometer;
+            document.getElementById('odometer-display').innerText = appState.odometer;
             document.getElementById('log-btn-miles').innerText = appState.odometer;
             document.getElementById('physics-weight-display').innerText = appState.riderWeight;
             document.getElementById('ai-miles-context').innerText = appState.odometer;
@@ -770,7 +800,7 @@
             document.getElementById('reset-confirm-box').classList.add('hidden');
         };
         window.executeReset = function() {
-            appState = { odometer: 204.6, riderWeight: 217, history: [] };
+            appState = { odometer: 204.6, riderWeight: 217, riderHeight: 70, history: [] };
             saveState();
             updateUIFromState();
             renderHistory();
@@ -872,7 +902,7 @@
             windowDiv.innerHTML += `<div id="${loadId}" class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[80%] self-start text-sm text-zinc-500 dark:text-zinc-400 italic">Thinking...</div>`;
             windowDiv.scrollTop = windowDiv.scrollHeight;
 
-            const prompt = `You are an expert mountain bike mechanic assisting a rider in Southern Utah on an Aventon Ramblas ADV eMTB. The rider weighs ${appState.riderWeight}lbs and has ${appState.odometer} miles on the bike. Keep the answer brief, helpful, and formatting plain (no markdown). Question: ${text}`;
+            const prompt = `You are an expert mountain bike mechanic assisting a rider in Southern Utah on an Aventon Ramblas ADV eMTB. The rider weighs ${appState.riderWeight}lbs, is ${appState.riderHeight} inches tall, and has ${appState.odometer} miles on the bike. Keep the answer brief, helpful, and formatting plain (no markdown). Question: ${text}`;
             
             const response = await fetchGemini(prompt);
             document.getElementById(loadId).remove();
