@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ramblas ADV | Maintenance Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { dark: '#000000', card: '#0a0a0a', border: '#1f2937' },
+                        utah: { 500: '#d97757' } // Custom Southern Utah Red Dirt color
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            background-color: #000000; 
+            color: #f4f4f5; 
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+        .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 70px); }
+        .glass-panel { 
+            background: rgba(10, 10, 10, 0.85); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.95); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05); 
+        }
+        
+        /* Tab Transitions */
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Nav Bar Highlights */
+        .nav-btn { color: #52525b; transition: all 0.2s; }
+        .nav-btn.active { color: #10b981; transform: translateY(-2px); }
+        
+        /* Diagram Hotspots */
+        .hotspot {
+            position: absolute; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.9);
+            border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); cursor: pointer; transition: transform 0.2s;
+        }
+        .hotspot::after {
+            content: ''; position: absolute; inset: -4px; border: 2px solid #10b981;
+            border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .hotspot:active { transform: translate(-50%, -50%) scale(0.9); }
+        @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2); opacity: 0; } }
+
+        /* Calendar Grid */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .day-cell { 
+            aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border-radius: 12px; font-size: 14px; font-weight: 600; background: #121212; border: 1px solid #1f2937;
+            position: relative; transition: all 0.2s; color: #a1a1aa;
+        }
+        .day-cell.active-month { color: #f4f4f5; }
+        .day-cell.today { border-color: #3b82f6; color: #3b82f6; }
+        .day-cell.has-log::after { content: ''; width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; position: absolute; bottom: 6px; box-shadow: 0 0 5px #10b981;}
+        .day-cell.has-upgrade::before { content: ''; width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%; position: absolute; top: 6px; right: 6px; }
+        .day-cell.selected { 
+            border: 2px solid #10b981; transform: scale(1.08); background: rgba(16, 185, 129, 0.15); 
+            z-index: 10; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); 
+        }
+
+        /* Slide-up Agenda Panel */
+        #agenda-panel { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(110%); }
+        #agenda-panel.open { transform: translateY(0); }
+
+        /* Toast Notification */
+        #toast { transition: all 0.3s; transform: translateY(-20px); opacity: 0; pointer-events: none; }
+        #toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center h-16">
+        <!-- Settings Gear (Replaces old dangerous reset button) -->
+        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white border border-zinc-800 active:scale-95 transition">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+        
+        <!-- App Title & Location Context -->
+        <div class="flex flex-col items-center justify-center absolute left-1/2 -translate-x-1/2">
+            <h1 class="text-emerald-500 font-black tracking-widest uppercase text-[13px] flex items-center gap-2">
+                <i class="fa-solid fa-bolt"></i> Ramblas ADV
+            </h1>
+            <span class="text-[9px] text-utah-500 font-mono tracking-widest font-bold">SOUTHERN UTAH</span>
+        </div>
+        
+        <!-- Editable Odometer -->
+        <div class="flex flex-col items-end">
+            <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Odometer</div>
+            <div class="flex items-center text-sm font-mono font-bold text-white">
+                <input id="odometer-input" type="number" step="0.1" onchange="updateOdometer(this.value)" class="bg-transparent w-14 text-right outline-none focus:text-emerald-400 transition" value="204.6">
+                <span class="text-zinc-500 ml-1">mi</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Toast Notification -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-emerald-500/20 border border-emerald-500 text-emerald-400 px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+        <i class="fa-solid fa-check-circle"></i> <span id="toast-msg">Saved Locally</span>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform" id="settings-content">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+                <h3 class="text-sm font-bold tracking-wider text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-500"></i> Preferences
+                </h3>
+                <button onclick="toggleSettings(false)" class="text-zinc-500 hover:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 flex flex-col gap-8">
+                <!-- Rider Weight Adjustment -->
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                        <i class="fa-solid fa-weight-scale text-sky-400"></i> Rider Weight Profile
+                    </label>
+                    <div class="flex items-center gap-3 bg-zinc-900 border border-zinc-800 p-2 rounded-2xl">
+                        <input type="number" id="settings-weight-input" onchange="updateRiderWeight(this.value)" class="flex-grow bg-transparent text-xl font-black text-white px-3 focus:outline-none text-center" value="217">
+                        <div class="bg-zinc-800 text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">LBS</div>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 leading-relaxed text-center">Updates fork physics calculations and AI context automatically.</p>
+                </div>
+                
+                <div class="border-t border-zinc-800"></div>
+                
+                <!-- Danger Zone -->
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
+                    </label>
+                    <button id="btn-reset-logs" onclick="requestReset()" class="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30 font-bold text-sm py-4 rounded-2xl transition w-full">
+                        Delete All App Data
+                    </button>
+                    <div id="reset-confirm-box" class="hidden flex flex-col gap-3 bg-red-950/30 p-4 rounded-2xl border border-red-500/50">
+                        <p class="text-xs text-red-300 text-center font-bold">Are you absolutely sure? This cannot be undone.</p>
+                        <div class="flex gap-2">
+                            <button onclick="cancelReset()" class="flex-1 bg-zinc-800 text-white font-bold text-xs py-3 rounded-xl">Cancel</button>
+                            <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-3 rounded-xl">Yes, Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="pb-safe relative">
+
+        <div id="tab-bike" class="tab-content active px-4 py-6">
+            <div class="bg-brand-card rounded-3xl border border-brand-border p-4 mb-6 relative overflow-hidden">
+                <!-- Borealis Image -->
+                <img src="https://aventon-images.imgix.net/files/Ramblas-ADV-Borealis-01_0a20df8e-c83d-4548-adba-4e1fbee7258a.jpg?v=1773163832&auto=compress,format&w=2500&q=25" 
+                     alt="Ramblas ADV Borealis" class="w-full h-auto rounded-2xl">
+                
+                <!-- Interactive Hotspots mapping perfectly to the image -->
+                <div class="hotspot" style="top: 32%; left: 78%;" onclick="selectHotspot('fork')"></div>
+                <div class="hotspot" style="top: 70%; left: 52%;" onclick="selectHotspot('motor')"></div>
+                <div class="hotspot" style="top: 40%; left: 85%;" onclick="selectHotspot('brakes')"></div>
+                <div class="hotspot" style="top: 72%; left: 22%;" onclick="selectHotspot('drivetrain')"></div>
+                <div class="hotspot" style="top: 28%; left: 38%;" onclick="selectHotspot('dropper')"></div>
+                <div class="hotspot" style="top: 52%; left: 62%;" onclick="selectHotspot('battery')"></div>
+                
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-bold text-white shadow-xl whitespace-nowrap">
+                    Tap a component to service
+                </div>
+            </div>
+
+            <!-- Southern Utah Alert -->
+            <div class="bg-utah-500/10 border border-utah-500/30 rounded-3xl p-5 relative overflow-hidden">
+                <i class="fa-solid fa-mountain-sun text-utah-500/20 text-6xl absolute -bottom-2 -right-2"></i>
+                <h3 class="text-utah-500 font-black tracking-widest uppercase text-xs mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot"></i> Desert Condition Alert
+                </h3>
+                <p class="text-zinc-300 text-xs leading-relaxed">
+                    Riding in Southern Utah requires special care. Red sandstone silt destroys wet lubes and scratches stanchions. <strong>Wipe fork seals dry after every ride</strong> and use <span class="text-emerald-400 font-bold">dry wax chain lube</span> only.
+                </p>
+            </div>
+        </div>
+
+        <div id="tab-garage" class="tab-content px-4 py-6">
+            
+            <!-- Component Header -->
+            <div class="flex items-center gap-4 mb-6">
+                <div id="garage-icon-bg" class="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                    <i id="garage-icon" class="fa-solid fa-gears text-2xl text-emerald-400"></i>
+                </div>
+                <div>
+                    <h2 id="garage-title" class="text-xl font-black text-white">RockShox Psylo Silver R</h2>
+                    <p id="garage-subtitle" class="text-xs text-zinc-400 font-mono">130mm Coil / 35mm Stanchions</p>
+                </div>
+            </div>
+
+            <!-- Physics Analysis Widget (Dynamic based on weight) -->
+            <div id="physics-widget" class="bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
+                <div class="flex justify-between items-start mb-3">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-400 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced"></i> Suspension Physics
+                    </h4>
+                    <span id="physics-status" class="bg-red-500/20 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black">Undersprung</span>
+                </div>
+                <p class="text-xs text-zinc-300 leading-relaxed mb-4">
+                    At <span id="physics-weight-display" class="font-bold text-white">217</span> lbs, the stock medium coil sits too deep in its travel. Keeping rebound dampening at <strong>"Turtle" (Slow)</strong> prevents violent top-outs on Utah sandstone drops.
+                </p>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-center justify-between">
+                    <span class="text-xs font-bold text-zinc-400">Upgrade Path:</span>
+                    <span class="text-xs font-bold text-white bg-zinc-800 px-3 py-1 rounded-lg">Solo Air Kit (#11.4018.103.022)</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Checklist -->
+            <div class="mb-6">
+                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-3 px-2">Service Checklist</h4>
+                <div id="garage-checklist" class="flex flex-col gap-2">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Log Entry Module -->
+            <div class="bg-brand-card border border-brand-border rounded-3xl p-5 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                    <i class="fa-solid fa-wrench text-6xl"></i>
+                </div>
+                <h4 class="text-xs font-black uppercase tracking-widest text-emerald-500 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> New Service Log
+                </h4>
+                
+                <textarea id="log-notes" rows="3" placeholder="What did you do? (e.g., wiped down red dirt, checked tire pressure...)" class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition mb-3 resize-none"></textarea>
+                
+                <div class="flex gap-2">
+                    <button onclick="enhanceNote()" class="bg-zinc-800 hover:bg-zinc-700 text-sky-400 border border-zinc-700 w-12 h-12 rounded-xl flex items-center justify-center transition active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </button>
+                    <button onclick="saveLogEntry()" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                        <i class="fa-solid fa-check"></i> Save Log at <span id="log-btn-miles">204.6</span> mi
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="tab-logs" class="tab-content px-4 py-6">
+            
+            <!-- Upgrades Tracker -->
+            <div class="mb-8">
+                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Installed Upgrades</h4>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-brand-card border border-brand-border rounded-2xl p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center border border-zinc-800">
+                                <i class="fa-solid fa-shoe-prints text-zinc-400"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-bold text-white">OneUp Comp Pedals</h5>
+                                <p class="text-[10px] text-zinc-500">Installed • Check pins periodically</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    </div>
+                    
+                    <div class="bg-brand-card border border-sky-500/30 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-1 h-full bg-sky-500"></div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
+                                <i class="fa-solid fa-hand text-sky-400"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-bold text-white">Ergon GA3 Grips</h5>
+                                <p class="text-[10px] text-sky-400">Scheduled: Next Wednesday</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-sky-500 bg-sky-500/10 px-2 py-1 rounded">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service History -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Service Registry</h4>
+                <div id="history-list" class="flex flex-col gap-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Backup Controls -->
+            <div class="mt-8 border-t border-zinc-800 pt-6 flex gap-3">
+                <button onclick="exportBackup()" class="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-white transition">
+                    <i class="fa-solid fa-download mr-1"></i> Export Data
+                </button>
+                <button onclick="importBackup()" class="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-white transition">
+                    <i class="fa-solid fa-upload mr-1"></i> Import Data
+                </button>
+            </div>
+        </div>
+
+        <div id="tab-plan" class="tab-content px-4 py-6">
+            <div class="bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="cal-month-year" class="text-lg font-black text-white uppercase tracking-wider">Month</h2>
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-columns-7 gap-1 text-center text-[10px] font-black text-zinc-600 mb-2 uppercase tracking-widest">
+                    <div class="w-full">Su</div><div class="w-full">Mo</div><div class="w-full">Tu</div><div class="w-full">We</div><div class="w-full">Th</div><div class="w-full">Fr</div><div class="w-full">Sa</div>
+                </div>
+                <div id="calendar-grid" class="calendar-grid">
+                    <!-- JS Grid -->
+                </div>
+            </div>
+            
+            <!-- Context Legend -->
+            <div class="flex justify-center gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Logged</div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span> Planned</div>
+            </div>
+        </div>
+
+        <div id="tab-ai" class="tab-content px-4 py-6 flex flex-col h-[calc(100vh-140px)]">
+            <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-4 flex gap-4 items-center shrink-0">
+                <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center animate-pulse border border-emerald-500/50">
+                    <i class="fa-solid fa-robot text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black text-white">Gemini Trail Mechanic</h3>
+                    <p class="text-[10px] text-emerald-400 font-mono mt-0.5">Context: Utah Dirt / 217lbs</p>
+                </div>
+            </div>
+            
+            <div id="chat-window" class="flex-grow overflow-y-auto bg-brand-card border border-brand-border rounded-3xl p-4 flex flex-col gap-4 mb-4 custom-scrollbar">
+                <div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[85%] self-start text-sm text-zinc-300 leading-relaxed">
+                    Hey! I know you're sitting at <span class="text-emerald-400 font-bold" id="ai-miles-context">204.6</span> miles on the Ramblas. Got questions about tuning that Psylo fork for your weight, or dealing with red dust?
+                </div>
+            </div>
+            
+            <div class="flex gap-2 shrink-0">
+                <input type="text" id="chat-input" placeholder="Ask about maintenance..." class="flex-grow bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                <button onclick="askMechanic()" class="bg-emerald-600 hover:bg-emerald-500 text-white w-12 h-12 rounded-2xl flex items-center justify-center transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="agenda-panel" class="fixed bottom-[70px] left-0 w-full bg-brand-card border-t border-brand-border z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="agenda-title" class="text-lg font-black text-white uppercase tracking-wider">Date Summary</h3>
+                <button onclick="closeAgenda()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center border border-zinc-800 hover:text-white transition"><i class="fa-solid fa-chevron-down"></i></button>
+            </div>
+            <div id="agenda-content" class="min-h-[150px] max-h-[40vh] overflow-y-auto">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full glass-nav z-50 pb-[env(safe-area-inset-bottom)]">
+        <div class="flex justify-around items-center py-3 px-2">
+            <button onclick="switchTab('tab-bike')" id="btn-tab-bike" class="nav-btn active flex flex-col items-center gap-1 w-16">
+                <i class="fa-solid fa-motorcycle text-xl"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest">Bike</span>
+            </button>
+            <button onclick="switchTab('tab-garage')" id="btn-tab-garage" class="nav-btn flex flex-col items-center gap-1 w-16">
+                <i class="fa-solid fa-wrench text-xl"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest">Garage</span>
+            </button>
+            <button onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn flex flex-col items-center gap-1 w-16">
+                <i class="fa-solid fa-clipboard-list text-xl"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest">Logs</span>
+            </button>
+            <button onclick="switchTab('tab-plan')" id="btn-tab-plan" class="nav-btn flex flex-col items-center gap-1 w-16">
+                <i class="fa-solid fa-calendar-days text-xl"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest">Plan</span>
+            </button>
+            <button onclick="switchTab('tab-ai')" id="btn-tab-ai" class="nav-btn flex flex-col items-center gap-1 w-16 relative">
+                <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <i class="fa-solid fa-sparkles text-xl"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest">AI Mech</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // --- 1. Data Structure & Hotspot Configurations ---
+        const DB_KEY = 'ramblas_adv_local_v3';
+        let appState = { odometer: 204.6, riderWeight: 217, history: [] };
+        let currentHotspot = 'fork';
+        let currentCalDate = new Date();
+
+        const hotspots = {
+            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil / 35mm Stanchions", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions completely dry (Utah Dust)", "Check rebound 'Turtle' setting", "Check thru-axle torque"] },
+            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque System", icon: "fa-bolt", check: ["Wipe casing down, avoid high-pressure water", "Check mounting bolts for play"] },
+            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil System (DO NOT USE DOT)", icon: "fa-circle-stop", check: ["Check pad wear against red rock grit", "Clean rotors with isopropyl alcohol"] },
+            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "High-Torque eMTB Application", icon: "fa-gear", check: ["Measure chain stretch (Crucial for eMTBs)", "Apply Dry Wax Lube only"] },
+            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean", "Check cable tension at lever"] },
+            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check rubber charge port seal", "Do not store in direct 100°F Utah sun"] }
+        };
+
+        // --- 2. System Initialization & Storage ---
+        window.onload = function() {
+            loadState();
+            updateUIFromState();
+            selectHotspot('fork');
+            renderHistory();
+            renderCalendar();
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem(DB_KEY);
+            if (saved) appState = JSON.parse(saved);
+            // Safety fallback
+            if(!appState.history) appState.history = [];
+            if(!appState.odometer) appState.odometer = 204.6;
+            if(!appState.riderWeight) appState.riderWeight = 217;
+        }
+
+        function saveState() {
+            localStorage.setItem(DB_KEY, JSON.stringify(appState));
+            showToast("Saved Locally");
+        }
+
+        // --- 3. UI Interactions (Tabs & Settings) ---
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+            
+            closeAgenda(); // close cal panel if open
+        };
+
+        window.toggleSettings = function(show) {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            if (show) {
+                document.getElementById('settings-weight-input').value = appState.riderWeight;
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                content.classList.add('scale-95');
+                cancelReset();
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        };
+
+        // --- 4. Dynamic Updates (Weight & Odometer) ---
+        window.updateOdometer = function(val) {
+            appState.odometer = parseFloat(val) || 0;
+            saveState();
+            updateUIFromState();
+        };
+
+        window.updateRiderWeight = function(val) {
+            appState.riderWeight = parseInt(val) || 217;
+            saveState();
+            updateUIFromState();
+            updatePhysicsWidget();
+        };
+
+        function updateUIFromState() {
+            document.getElementById('odometer-input').value = appState.odometer;
+            document.getElementById('log-btn-miles').innerText = appState.odometer;
+            document.getElementById('physics-weight-display').innerText = appState.riderWeight;
+            document.getElementById('ai-miles-context').innerText = appState.odometer;
+        }
+
+        function updatePhysicsWidget() {
+            const status = document.getElementById('physics-status');
+            const w = appState.riderWeight;
+            if (currentHotspot !== 'fork') return; // Only applies to fork
+
+            if (w > 200) {
+                status.className = "bg-red-500/20 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black";
+                status.innerText = "Undersprung";
+            } else if (w >= 150 && w <= 200) {
+                status.className = "bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-1 rounded border border-emerald-500/30 uppercase font-black";
+                status.innerText = "Optimal";
+            } else {
+                status.className = "bg-sky-500/20 text-sky-400 text-[9px] px-2 py-1 rounded border border-sky-500/30 uppercase font-black";
+                status.innerText = "Oversprung";
+            }
+        }
+
+        window.selectHotspot = function(id) {
+            currentHotspot = id;
+            const data = hotspots[id];
+            
+            // Update Garage UI
+            document.getElementById('garage-icon').className = `fa-solid ${data.icon} text-2xl text-emerald-400`;
+            document.getElementById('garage-title').innerText = data.title;
+            document.getElementById('garage-subtitle').innerText = data.sub;
+            
+            // Build Checklist
+            const checkHTML = data.check.map(c => `
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-start gap-3">
+                    <input type="checkbox" class="mt-1 accent-emerald-500 w-4 h-4 rounded">
+                    <span class="text-sm text-zinc-300 leading-tight">${c}</span>
+                </div>
+            `).join('');
+            document.getElementById('garage-checklist').innerHTML = checkHTML;
+            
+            // Show/Hide Physics Widget
+            document.getElementById('physics-widget').style.display = (id === 'fork') ? 'block' : 'none';
+            if(id === 'fork') updatePhysicsWidget();
+
+            switchTab('tab-garage');
+        };
+
+        // --- 5. Logging & History ---
+        window.saveLogEntry = function() {
+            const noteArea = document.getElementById('log-notes');
+            if(!noteArea.value.trim()) return showToast("Enter a note first!");
+
+            const entry = {
+                id: Date.now().toString(),
+                dateStr: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                miles: appState.odometer,
+                system: hotspots[currentHotspot].title,
+                icon: hotspots[currentHotspot].icon,
+                note: noteArea.value.trim()
+            };
+
+            appState.history.unshift(entry);
+            saveState();
+            
+            noteArea.value = '';
+            renderHistory();
+            renderCalendar();
+            
+            // Checkboxes reset
+            document.querySelectorAll('#garage-checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+        };
+
+        window.renderHistory = function() {
+            const list = document.getElementById('history-list');
+            if (appState.history.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 text-zinc-600 text-xs">No maintenance logged yet.</div>`;
+                return;
+            }
+
+            list.innerHTML = appState.history.map(log => `
+                <div class="bg-brand-card border border-brand-border rounded-2xl p-4 relative group">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${log.icon} text-emerald-500 text-sm"></i>
+                            <span class="text-xs font-black uppercase text-white">${log.system}</span>
+                        </div>
+                        <span class="text-[10px] text-zinc-500 font-mono">${log.dateStr}</span>
+                    </div>
+                    <p class="text-sm text-zinc-300 mb-3">${log.note}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-sky-400 bg-sky-500/10 px-2 py-1 rounded">@ ${log.miles} mi</span>
+                        <button onclick="deleteLog('${log.id}')" class="text-red-500/50 hover:text-red-500 transition px-2 py-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.deleteLog = function(id) {
+            appState.history = appState.history.filter(l => l.id !== id);
+            saveState();
+            renderHistory();
+            renderCalendar();
+        };
+
+        // --- 6. Calendar View Engine ---
+        window.changeMonth = function(delta) {
+            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+            renderCalendar();
+        };
+
+        window.renderCalendar = function() {
+            const year = currentCalDate.getFullYear();
+            const month = currentCalDate.getMonth();
+            const today = new Date();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            // Blank days before start
+            for(let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="day-cell"></div>`;
+            }
+
+            // Figure out next Wednesday for GA3 Grips
+            let nextWed = new Date();
+            nextWed.setDate(today.getDate() + ((3 + 7 - today.getDay()) % 7));
+            if(nextWed.getDate() === today.getDate()) nextWed.setDate(nextWed.getDate() + 7); // force *next* wed
+            const wedStr = nextWed.toISOString().split('T')[0];
+
+            for(let i = 1; i <= daysInMonth; i++) {
+                let dStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                let isToday = (dStr === today.toISOString().split('T')[0]);
+                let hasLogs = appState.history.some(l => l.dateStr === dStr);
+                let hasUpgrade = (dStr === wedStr); // Ergon grips target
+                
+                let classes = "day-cell active-month";
+                if(isToday) classes += " today";
+                if(hasLogs) classes += " has-log";
+                if(hasUpgrade) classes += " has-upgrade";
+
+                grid.innerHTML += `<div class="${classes}" onclick="selectDate(this, '${dStr}', ${hasUpgrade})" id="cal-day-${dStr}">${i}</div>`;
+            }
+        };
+
+        window.selectDate = function(elem, dateStr, hasUpgrade) {
+            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
+            elem.classList.add('selected');
+            
+            const panel = document.getElementById('agenda-panel');
+            const content = document.getElementById('agenda-content');
+            document.getElementById('agenda-title').innerText = dateStr;
+
+            const logs = appState.history.filter(l => l.dateStr === dateStr);
+            let html = '';
+
+            if (hasUpgrade) {
+                html += `
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-wrench text-amber-500"></i> <span class="text-xs font-black uppercase text-amber-500">Planned Upgrade</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Install Ergon GA3 Grips</h4>
+                        <p class="text-xs text-zinc-400 mt-1">Remember to set wing angle parallel to forearm to prevent hand numbness on slickrock chatter.</p>
+                    </div>`;
+            }
+
+            if (logs.length > 0) {
+                html += logs.map(l => `
+                    <div class="border-l-2 border-emerald-500 pl-3 mb-4">
+                        <span class="text-[10px] text-zinc-500 font-mono">${l.system} • ${l.miles} mi</span>
+                        <p class="text-sm text-zinc-200">${l.note}</p>
+                    </div>
+                `).join('');
+            } else if (!hasUpgrade) {
+                html = `
+                    <div class="text-center py-6">
+                        <i class="fa-solid fa-calendar-xmark text-4xl text-zinc-800 mb-3"></i>
+                        <p class="text-zinc-500 text-sm mb-4">No maintenance logged on this date.</p>
+                        <button onclick="switchTab('tab-garage')" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-bold py-2 px-6 rounded-xl text-xs active:scale-95 transition">
+                            Log Something Now
+                        </button>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+            panel.classList.add('open');
+        };
+
+        window.closeAgenda = function() {
+            document.getElementById('agenda-panel').classList.remove('open');
+            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
+        };
+
+        // --- 7. Danger Zone Reset & Backups ---
+        window.requestReset = function() {
+            document.getElementById('btn-reset-logs').classList.add('hidden');
+            document.getElementById('reset-confirm-box').classList.remove('hidden');
+        };
+        window.cancelReset = function() {
+            document.getElementById('btn-reset-logs').classList.remove('hidden');
+            document.getElementById('reset-confirm-box').classList.add('hidden');
+        };
+        window.executeReset = function() {
+            appState = { odometer: 204.6, riderWeight: 217, history: [] };
+            saveState();
+            updateUIFromState();
+            renderHistory();
+            renderCalendar();
+            toggleSettings(false);
+            showToast("Data Erased");
+        };
+
+        window.exportBackup = function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+            const node = document.createElement('a');
+            node.setAttribute("href", dataStr);
+            node.setAttribute("download", "ramblas_backup.json");
+            document.body.appendChild(node);
+            node.click();
+            node.remove();
+        };
+
+        window.importBackup = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.onload = readerEvent => {
+                    try {
+                        appState = JSON.parse(readerEvent.target.result);
+                        saveState();
+                        updateUIFromState();
+                        renderHistory();
+                        renderCalendar();
+                        showToast("Backup Restored!");
+                    } catch(err) { alert("Invalid file."); }
+                }
+            };
+            input.click();
+        };
+
+        // --- 8. Helper Functions ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // --- 9. AI Integration (Fetch API method for maximum compatibility) ---
+        async function fetchGemini(promptText) {
+            const apiKey = ""; // Handled seamlessly by Canvas
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: promptText }] }] };
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if(data && data.candidates && data.candidates[0]) {
+                    return data.candidates[0].content.parts[0].text;
+                }
+            } catch(e) { console.error("AI Error:", e); }
+            return null;
+        }
+
+        window.enhanceNote = async function() {
+            const noteArea = document.getElementById('log-notes');
+            const original = noteArea.value.trim();
+            if(!original) return showToast("Type a rough note first!");
+            
+            noteArea.value = "AI Enhancing...";
+            const prompt = `Act as a professional bike mechanic. Rewrite this sloppy maintenance note into a clean, concise, single-sentence log entry suitable for a service registry. The bike is an Aventon Ramblas eMTB in Southern Utah. Original note: "${original}"`;
+            
+            const result = await fetchGemini(prompt);
+            if(result) {
+                noteArea.value = result.replace(/["*]/g, '').trim(); // Clean markdown
+                showToast("Note Enhanced");
+            } else {
+                noteArea.value = original;
+                showToast("AI Failed");
+            }
+        };
+
+        window.askMechanic = async function() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const windowDiv = document.getElementById('chat-window');
+            // Add user message
+            windowDiv.innerHTML += `<div class="bg-emerald-600 text-white p-3 rounded-2xl rounded-tr-sm w-[80%] self-end text-sm">${text}</div>`;
+            input.value = '';
+            windowDiv.scrollTop = windowDiv.scrollHeight;
+
+            // Loading indicator
+            const loadId = 'loading-' + Date.now();
+            windowDiv.innerHTML += `<div id="${loadId}" class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[80%] self-start text-sm text-zinc-400 italic">Thinking...</div>`;
+            windowDiv.scrollTop = windowDiv.scrollHeight;
+
+            const prompt = `You are an expert mountain bike mechanic assisting a rider in Southern Utah on an Aventon Ramblas ADV eMTB. The rider weighs ${appState.riderWeight}lbs and has ${appState.odometer} miles on the bike. Keep the answer brief, helpful, and formatting plain (no markdown). Question: ${text}`;
+            
+            const response = await fetchGemini(prompt);
+            document.getElementById(loadId).remove();
+            
+            const reply = response || "Sorry, I couldn't connect right now. Check your torque specs manually!";
+            windowDiv.innerHTML += `<div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[90%] self-start text-sm text-zinc-300 leading-relaxed">${reply}</div>`;
+            windowDiv.scrollTop = windowDiv.scrollHeight;
+        };
+
+    </script>
+</body>
+</html>
