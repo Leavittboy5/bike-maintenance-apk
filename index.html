@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f4f5" id="meta-theme-color">
     <title>Ramblas ADV | Maintenance Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -10,6 +11,7 @@
     
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -23,22 +25,41 @@
     </script>
     <style>
         body { 
-            background-color: #000000; 
-            color: #f4f4f5; 
+            background-color: #f4f4f5;
+            color: #18181b;
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        input, textarea {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        .dark body {
+            background-color: #000000;
+            color: #f4f4f5;
         }
         .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 70px); }
         .glass-panel { 
-            background: rgba(10, 10, 10, 0.85); 
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px); 
             -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .glass-panel {
+            background: rgba(10, 10, 10, 0.85);
             border-bottom: 1px solid rgba(255,255,255,0.05); 
         }
         .glass-nav {
-            background: rgba(10, 10, 10, 0.95); 
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px); 
             -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .glass-nav {
+            background: rgba(10, 10, 10, 0.95);
             border-top: 1px solid rgba(255,255,255,0.05); 
         }
         
@@ -94,9 +115,9 @@
 </head>
 <body class="antialiased overflow-x-hidden">
 
-    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center h-16">
+    <header class="glass-panel pt-[env(safe-area-inset-top)] sticky top-0 z-50 px-4 py-3 flex justify-between items-center h-16">
         <!-- Settings Gear (Replaces old dangerous reset button) -->
-        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white border border-zinc-800 active:scale-95 transition">
+        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 active:scale-95 transition">
             <i class="fa-solid fa-gear"></i>
         </button>
         
@@ -111,7 +132,7 @@
         <!-- Editable Odometer -->
         <div class="flex flex-col items-end">
             <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Odometer</div>
-            <div class="flex items-center text-sm font-mono font-bold text-white">
+            <div class="flex items-center text-sm font-mono font-bold text-zinc-900 dark:text-white">
                 <input id="odometer-input" type="number" step="0.1" onchange="updateOdometer(this.value)" class="bg-transparent w-14 text-right outline-none focus:text-emerald-400 transition" value="204.6">
                 <span class="text-zinc-500 ml-1">mi</span>
             </div>
@@ -123,13 +144,13 @@
         <i class="fa-solid fa-check-circle"></i> <span id="toast-msg">Saved Locally</span>
     </div>
 
-    <div id="settings-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform" id="settings-content">
-            <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-                <h3 class="text-sm font-bold tracking-wider text-white uppercase flex items-center gap-2">
+    <div id="settings-modal" class="fixed inset-0 z-[100] hidden bg-zinc-200/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform" id="settings-content">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+                <h3 class="text-sm font-bold tracking-wider text-zinc-900 dark:text-white uppercase flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-emerald-500"></i> Preferences
                 </h3>
-                <button onclick="toggleSettings(false)" class="text-zinc-500 hover:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900">
+                <button onclick="toggleSettings(false)" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -137,18 +158,32 @@
             <div class="p-6 flex flex-col gap-8">
                 <!-- Rider Weight Adjustment -->
                 <div class="flex flex-col gap-3">
-                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
                         <i class="fa-solid fa-weight-scale text-sky-400"></i> Rider Weight Profile
                     </label>
-                    <div class="flex items-center gap-3 bg-zinc-900 border border-zinc-800 p-2 rounded-2xl">
-                        <input type="number" id="settings-weight-input" onchange="updateRiderWeight(this.value)" class="flex-grow bg-transparent text-xl font-black text-white px-3 focus:outline-none text-center" value="217">
-                        <div class="bg-zinc-800 text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">LBS</div>
+                    <div class="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2 rounded-2xl">
+                        <input type="number" id="settings-weight-input" onchange="updateRiderWeight(this.value)" class="flex-grow bg-transparent text-xl font-black text-zinc-900 dark:text-white px-3 focus:outline-none text-center" value="217">
+                        <div class="bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">LBS</div>
                     </div>
                     <p class="text-[10px] text-zinc-500 leading-relaxed text-center">Updates fork physics calculations and AI context automatically.</p>
                 </div>
                 
-                <div class="border-t border-zinc-800"></div>
+                <div class="border-t border-zinc-200 dark:border-zinc-800"></div>
                 
+                <div class="border-t border-zinc-200 dark:border-zinc-800"></div>
+
+                <!-- Theme Toggle -->
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                        <i class="fa-solid fa-moon text-indigo-400"></i> Theme Preference
+                    </label>
+                    <div class="flex gap-2">
+                        <button onclick="setTheme('light')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">Light</button>
+                        <button onclick="setTheme('dark')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">Dark</button>
+                        <button onclick="setTheme('system')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">System</button>
+                    </div>
+                </div>
+
                 <!-- Danger Zone -->
                 <div class="flex flex-col gap-3">
                     <label class="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-2">
@@ -160,8 +195,8 @@
                     <div id="reset-confirm-box" class="hidden flex flex-col gap-3 bg-red-950/30 p-4 rounded-2xl border border-red-500/50">
                         <p class="text-xs text-red-300 text-center font-bold">Are you absolutely sure? This cannot be undone.</p>
                         <div class="flex gap-2">
-                            <button onclick="cancelReset()" class="flex-1 bg-zinc-800 text-white font-bold text-xs py-3 rounded-xl">Cancel</button>
-                            <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-3 rounded-xl">Yes, Delete</button>
+                            <button onclick="cancelReset()" class="flex-1 bg-zinc-800 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl">Cancel</button>
+                            <button onclick="executeReset()" class="flex-1 bg-red-600 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl">Yes, Delete</button>
                         </div>
                     </div>
                 </div>
@@ -173,7 +208,7 @@
     <main class="pb-safe relative">
 
         <div id="tab-bike" class="tab-content active px-4 py-6">
-            <div class="bg-brand-card rounded-3xl border border-brand-border p-4 mb-6 relative overflow-hidden">
+            <div class="bg-white dark:bg-brand-card rounded-3xl border border-brand-border p-4 mb-6 relative overflow-hidden">
                 <!-- Borealis Image -->
                 <img src="https://aventon-images.imgix.net/files/Ramblas-ADV-Borealis-01_0a20df8e-c83d-4548-adba-4e1fbee7258a.jpg?v=1773163832&auto=compress,format&w=2500&q=25" 
                      alt="Ramblas ADV Borealis" class="w-full h-auto rounded-2xl">
@@ -186,7 +221,7 @@
                 <div class="hotspot" style="top: 28%; left: 38%;" onclick="selectHotspot('dropper')"></div>
                 <div class="hotspot" style="top: 52%; left: 62%;" onclick="selectHotspot('battery')"></div>
                 
-                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-bold text-white shadow-xl whitespace-nowrap">
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-bold text-zinc-900 dark:text-white shadow-xl whitespace-nowrap">
                     Tap a component to service
                 </div>
             </div>
@@ -197,7 +232,7 @@
                 <h3 class="text-utah-500 font-black tracking-widest uppercase text-xs mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-location-dot"></i> Desert Condition Alert
                 </h3>
-                <p class="text-zinc-300 text-xs leading-relaxed">
+                <p class="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">
                     Riding in Southern Utah requires special care. Red sandstone silt destroys wet lubes and scratches stanchions. <strong>Wipe fork seals dry after every ride</strong> and use <span class="text-emerald-400 font-bold">dry wax chain lube</span> only.
                 </p>
             </div>
@@ -211,25 +246,25 @@
                     <i id="garage-icon" class="fa-solid fa-gears text-2xl text-emerald-400"></i>
                 </div>
                 <div>
-                    <h2 id="garage-title" class="text-xl font-black text-white">RockShox Psylo Silver R</h2>
-                    <p id="garage-subtitle" class="text-xs text-zinc-400 font-mono">130mm Coil / 35mm Stanchions</p>
+                    <h2 id="garage-title" class="text-xl font-black text-zinc-900 dark:text-white">RockShox Psylo Silver R</h2>
+                    <p id="garage-subtitle" class="text-xs text-zinc-500 dark:text-zinc-400 font-mono">130mm Coil / 35mm Stanchions</p>
                 </div>
             </div>
 
             <!-- Physics Analysis Widget (Dynamic based on weight) -->
-            <div id="physics-widget" class="bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
+            <div id="physics-widget" class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
                 <div class="flex justify-between items-start mb-3">
                     <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-400 flex items-center gap-2">
                         <i class="fa-solid fa-scale-balanced"></i> Suspension Physics
                     </h4>
                     <span id="physics-status" class="bg-red-500/20 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black">Undersprung</span>
                 </div>
-                <p class="text-xs text-zinc-300 leading-relaxed mb-4">
-                    At <span id="physics-weight-display" class="font-bold text-white">217</span> lbs, the stock medium coil sits too deep in its travel. Keeping rebound dampening at <strong>"Turtle" (Slow)</strong> prevents violent top-outs on Utah sandstone drops.
+                <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
+                    At <span id="physics-weight-display" class="font-bold text-zinc-900 dark:text-white">217</span> lbs, the stock medium coil sits too deep in its travel. Keeping rebound dampening at <strong>"Turtle" (Slow)</strong> prevents violent top-outs on Utah sandstone drops.
                 </p>
-                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-center justify-between">
-                    <span class="text-xs font-bold text-zinc-400">Upgrade Path:</span>
-                    <span class="text-xs font-bold text-white bg-zinc-800 px-3 py-1 rounded-lg">Solo Air Kit (#11.4018.103.022)</span>
+                <div class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 flex items-center justify-between">
+                    <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400">Upgrade Path:</span>
+                    <span class="text-xs font-bold text-zinc-900 dark:text-white bg-zinc-800 px-3 py-1 rounded-lg">Solo Air Kit (#11.4018.103.022)</span>
                 </div>
             </div>
 
@@ -242,7 +277,7 @@
             </div>
 
             <!-- Log Entry Module -->
-            <div class="bg-brand-card border border-brand-border rounded-3xl p-5 relative overflow-hidden">
+            <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                     <i class="fa-solid fa-wrench text-6xl"></i>
                 </div>
@@ -250,13 +285,13 @@
                     <i class="fa-solid fa-pen-to-square"></i> New Service Log
                 </h4>
                 
-                <textarea id="log-notes" rows="3" placeholder="What did you do? (e.g., wiped down red dirt, checked tire pressure...)" class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition mb-3 resize-none"></textarea>
+                <textarea id="log-notes" rows="3" placeholder="What did you do? (e.g., wiped down red dirt, checked tire pressure...)" class="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition mb-3 resize-none"></textarea>
                 
                 <div class="flex gap-2">
                     <button onclick="enhanceNote()" class="bg-zinc-800 hover:bg-zinc-700 text-sky-400 border border-zinc-700 w-12 h-12 rounded-xl flex items-center justify-center transition active:scale-95">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </button>
-                    <button onclick="saveLogEntry()" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                    <button onclick="saveLogEntry()" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
                         <i class="fa-solid fa-check"></i> Save Log at <span id="log-btn-miles">204.6</span> mi
                     </button>
                 </div>
@@ -270,27 +305,27 @@
             <div class="mb-8">
                 <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Installed Upgrades</h4>
                 <div class="flex flex-col gap-3">
-                    <div class="bg-brand-card border border-brand-border rounded-2xl p-4 flex items-center justify-between">
+                    <div class="bg-white dark:bg-brand-card border border-brand-border rounded-2xl p-4 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center border border-zinc-800">
-                                <i class="fa-solid fa-shoe-prints text-zinc-400"></i>
+                            <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800">
+                                <i class="fa-solid fa-shoe-prints text-zinc-500 dark:text-zinc-400"></i>
                             </div>
                             <div>
-                                <h5 class="text-sm font-bold text-white">OneUp Comp Pedals</h5>
+                                <h5 class="text-sm font-bold text-zinc-900 dark:text-white">OneUp Comp Pedals</h5>
                                 <p class="text-[10px] text-zinc-500">Installed • Check pins periodically</p>
                             </div>
                         </div>
                         <i class="fa-solid fa-circle-check text-emerald-500"></i>
                     </div>
                     
-                    <div class="bg-brand-card border border-sky-500/30 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden">
+                    <div class="bg-white dark:bg-brand-card border border-sky-500/30 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-1 h-full bg-sky-500"></div>
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
                                 <i class="fa-solid fa-hand text-sky-400"></i>
                             </div>
                             <div>
-                                <h5 class="text-sm font-bold text-white">Ergon GA3 Grips</h5>
+                                <h5 class="text-sm font-bold text-zinc-900 dark:text-white">Ergon GA3 Grips</h5>
                                 <p class="text-[10px] text-sky-400">Scheduled: Next Wednesday</p>
                             </div>
                         </div>
@@ -308,27 +343,27 @@
             </div>
             
             <!-- Backup Controls -->
-            <div class="mt-8 border-t border-zinc-800 pt-6 flex gap-3">
-                <button onclick="exportBackup()" class="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-white transition">
+            <div class="mt-8 border-t border-zinc-200 dark:border-zinc-800 pt-6 flex gap-3">
+                <button onclick="exportBackup()" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-zinc-900 dark:text-white transition">
                     <i class="fa-solid fa-download mr-1"></i> Export Data
                 </button>
-                <button onclick="importBackup()" class="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-white transition">
+                <button onclick="importBackup()" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-zinc-900 dark:text-white transition">
                     <i class="fa-solid fa-upload mr-1"></i> Import Data
                 </button>
             </div>
         </div>
 
         <div id="tab-plan" class="tab-content px-4 py-6">
-            <div class="bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
+            <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 mb-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 id="cal-month-year" class="text-lg font-black text-white uppercase tracking-wider">Month</h2>
+                    <h2 id="cal-month-year" class="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Month</h2>
                     <div class="flex gap-2">
-                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
                 
-                <div class="grid grid-columns-7 gap-1 text-center text-[10px] font-black text-zinc-600 mb-2 uppercase tracking-widest">
+                <div class="grid grid-columns-7 gap-1 text-center text-[10px] font-black text-zinc-500 dark:text-zinc-600 mb-2 uppercase tracking-widest">
                     <div class="w-full">Su</div><div class="w-full">Mo</div><div class="w-full">Tu</div><div class="w-full">We</div><div class="w-full">Th</div><div class="w-full">Fr</div><div class="w-full">Sa</div>
                 </div>
                 <div id="calendar-grid" class="calendar-grid">
@@ -349,20 +384,20 @@
                     <i class="fa-solid fa-robot text-emerald-400 text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-black text-white">Gemini Trail Mechanic</h3>
+                    <h3 class="text-sm font-black text-zinc-900 dark:text-white">Gemini Trail Mechanic</h3>
                     <p class="text-[10px] text-emerald-400 font-mono mt-0.5">Context: Utah Dirt / 217lbs</p>
                 </div>
             </div>
             
-            <div id="chat-window" class="flex-grow overflow-y-auto bg-brand-card border border-brand-border rounded-3xl p-4 flex flex-col gap-4 mb-4 custom-scrollbar">
-                <div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[85%] self-start text-sm text-zinc-300 leading-relaxed">
+            <div id="chat-window" class="flex-grow overflow-y-auto bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-4 flex flex-col gap-4 mb-4 custom-scrollbar">
+                <div class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[85%] self-start text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
                     Hey! I know you're sitting at <span class="text-emerald-400 font-bold" id="ai-miles-context">204.6</span> miles on the Ramblas. Got questions about tuning that Psylo fork for your weight, or dealing with red dust?
                 </div>
             </div>
             
             <div class="flex gap-2 shrink-0">
-                <input type="text" id="chat-input" placeholder="Ask about maintenance..." class="flex-grow bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
-                <button onclick="askMechanic()" class="bg-emerald-600 hover:bg-emerald-500 text-white w-12 h-12 rounded-2xl flex items-center justify-center transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                <input type="text" id="chat-input" placeholder="Ask about maintenance..." class="flex-grow bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition">
+                <button onclick="askMechanic()" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white w-12 h-12 rounded-2xl flex items-center justify-center transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -370,11 +405,11 @@
 
     </main>
 
-    <div id="agenda-panel" class="fixed bottom-[70px] left-0 w-full bg-brand-card border-t border-brand-border z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe">
+    <div id="agenda-panel" class="fixed bottom-[70px] left-0 w-full bg-white dark:bg-brand-card border-t border-brand-border z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
-                <h3 id="agenda-title" class="text-lg font-black text-white uppercase tracking-wider">Date Summary</h3>
-                <button onclick="closeAgenda()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center border border-zinc-800 hover:text-white transition"><i class="fa-solid fa-chevron-down"></i></button>
+                <h3 id="agenda-title" class="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Date Summary</h3>
+                <button onclick="closeAgenda()" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 hover:text-zinc-900 dark:text-white transition"><i class="fa-solid fa-chevron-down"></i></button>
             </div>
             <div id="agenda-content" class="min-h-[150px] max-h-[40vh] overflow-y-auto">
                 <!-- Dynamically populated -->
@@ -409,6 +444,40 @@
     </nav>
 
     <script>
+        // --- Theme Management ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('ramblas_theme') || 'system';
+            setTheme(savedTheme, true);
+        }
+
+        function setTheme(theme, init = false) {
+            if (theme !== 'system') {
+                localStorage.setItem('ramblas_theme', theme);
+            } else {
+                localStorage.removeItem('ramblas_theme');
+            }
+
+            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('meta-theme-color').setAttribute('content', '#000000');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('meta-theme-color').setAttribute('content', '#f4f4f5');
+            }
+            if (!init && typeof showToast === 'function') {
+                showToast("Theme Updated");
+            }
+        }
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('ramblas_theme')) {
+                setTheme('system');
+            }
+        });
+
         // --- 1. Data Structure & Hotspot Configurations ---
         const DB_KEY = 'ramblas_adv_local_v3';
         let appState = { odometer: 204.6, riderWeight: 217, history: [] };
@@ -426,6 +495,7 @@
 
         // --- 2. System Initialization & Storage ---
         window.onload = function() {
+            initTheme();
             loadState();
             updateUIFromState();
             selectHotspot('fork');
@@ -522,9 +592,9 @@
             
             // Build Checklist
             const checkHTML = data.check.map(c => `
-                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-start gap-3">
+                <div class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 flex items-start gap-3">
                     <input type="checkbox" class="mt-1 accent-emerald-500 w-4 h-4 rounded">
-                    <span class="text-sm text-zinc-300 leading-tight">${c}</span>
+                    <span class="text-sm text-zinc-700 dark:text-zinc-300 leading-tight">${c}</span>
                 </div>
             `).join('');
             document.getElementById('garage-checklist').innerHTML = checkHTML;
@@ -564,20 +634,20 @@
         window.renderHistory = function() {
             const list = document.getElementById('history-list');
             if (appState.history.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-zinc-600 text-xs">No maintenance logged yet.</div>`;
+                list.innerHTML = `<div class="text-center py-8 text-zinc-500 dark:text-zinc-600 text-xs">No maintenance logged yet.</div>`;
                 return;
             }
 
             list.innerHTML = appState.history.map(log => `
-                <div class="bg-brand-card border border-brand-border rounded-2xl p-4 relative group">
+                <div class="bg-white dark:bg-brand-card border border-brand-border rounded-2xl p-4 relative group">
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid ${log.icon} text-emerald-500 text-sm"></i>
-                            <span class="text-xs font-black uppercase text-white">${log.system}</span>
+                            <span class="text-xs font-black uppercase text-zinc-900 dark:text-white">${log.system}</span>
                         </div>
                         <span class="text-[10px] text-zinc-500 font-mono">${log.dateStr}</span>
                     </div>
-                    <p class="text-sm text-zinc-300 mb-3">${log.note}</p>
+                    <p class="text-sm text-zinc-700 dark:text-zinc-300 mb-3">${log.note}</p>
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-bold text-sky-400 bg-sky-500/10 px-2 py-1 rounded">@ ${log.miles} mi</span>
                         <button onclick="deleteLog('${log.id}')" class="text-red-500/50 hover:text-red-500 transition px-2 py-1">
@@ -657,8 +727,8 @@
                         <div class="flex items-center gap-2 mb-1">
                             <i class="fa-solid fa-wrench text-amber-500"></i> <span class="text-xs font-black uppercase text-amber-500">Planned Upgrade</span>
                         </div>
-                        <h4 class="text-sm font-bold text-white">Install Ergon GA3 Grips</h4>
-                        <p class="text-xs text-zinc-400 mt-1">Remember to set wing angle parallel to forearm to prevent hand numbness on slickrock chatter.</p>
+                        <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Install Ergon GA3 Grips</h4>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Remember to set wing angle parallel to forearm to prevent hand numbness on slickrock chatter.</p>
                     </div>`;
             }
 
@@ -793,13 +863,13 @@
             
             const windowDiv = document.getElementById('chat-window');
             // Add user message
-            windowDiv.innerHTML += `<div class="bg-emerald-600 text-white p-3 rounded-2xl rounded-tr-sm w-[80%] self-end text-sm">${text}</div>`;
+            windowDiv.innerHTML += `<div class="bg-emerald-600 text-zinc-900 dark:text-white p-3 rounded-2xl rounded-tr-sm w-[80%] self-end text-sm">${text}</div>`;
             input.value = '';
             windowDiv.scrollTop = windowDiv.scrollHeight;
 
             // Loading indicator
             const loadId = 'loading-' + Date.now();
-            windowDiv.innerHTML += `<div id="${loadId}" class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[80%] self-start text-sm text-zinc-400 italic">Thinking...</div>`;
+            windowDiv.innerHTML += `<div id="${loadId}" class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[80%] self-start text-sm text-zinc-500 dark:text-zinc-400 italic">Thinking...</div>`;
             windowDiv.scrollTop = windowDiv.scrollHeight;
 
             const prompt = `You are an expert mountain bike mechanic assisting a rider in Southern Utah on an Aventon Ramblas ADV eMTB. The rider weighs ${appState.riderWeight}lbs and has ${appState.odometer} miles on the bike. Keep the answer brief, helpful, and formatting plain (no markdown). Question: ${text}`;
@@ -808,7 +878,7 @@
             document.getElementById(loadId).remove();
             
             const reply = response || "Sorry, I couldn't connect right now. Check your torque specs manually!";
-            windowDiv.innerHTML += `<div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[90%] self-start text-sm text-zinc-300 leading-relaxed">${reply}</div>`;
+            windowDiv.innerHTML += `<div class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl rounded-tl-sm w-[90%] self-start text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">${reply}</div>`;
             windowDiv.scrollTop = windowDiv.scrollHeight;
         };
 
