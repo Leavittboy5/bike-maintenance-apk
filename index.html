@@ -24,11 +24,15 @@
         }
     </script>
     <style>
+        /* Native App Layout Lock */
         body { 
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
             background-color: #f4f4f5; 
             color: #18181b; 
             -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none; /* Stops bounce scroll on Android */
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
@@ -41,6 +45,21 @@
             background-color: #000000; 
             color: #f4f4f5; 
         }
+
+        /* Scrollable Main Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior-y: contain; 
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+        
+        /* Theming Utilities */
+        .themed-card { background-color: #ffffff; }
+        .dark .themed-card { background-color: #0a0a0a; }
+        .themed-border { border-color: #e4e4e7; }
+        .dark .themed-border { border-color: #1f2937; }
+
         .glass-panel { 
             background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(16px); 
@@ -62,6 +81,7 @@
             border-top: 1px solid rgba(255,255,255,0.05); 
         }
         
+        /* Tab Transitions */
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .tab-content.active { display: block; opacity: 1; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp {
@@ -69,11 +89,11 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* Nav Bar Highlights */
         .nav-btn { color: #52525b; transition: all 0.2s; }
-        .dark .nav-btn { color: #a1a1aa; }
         .nav-btn.active { color: #10b981; transform: translateY(-2px); }
-        .dark .nav-btn.active { color: #10b981; }
         
+        /* Diagram Hotspots */
         .hotspot {
             position: absolute; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.9);
             border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%);
@@ -86,148 +106,148 @@
         .hotspot:active { transform: translate(-50%, -50%) scale(0.9); }
         @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2); opacity: 0; } }
 
+        /* Calendar Grid */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { 
             aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            border-radius: 12px; font-size: 14px; font-weight: 600; 
-            background: #ffffff; border: 1px solid #e4e4e7; color: #a1a1aa;
-            position: relative; transition: all 0.2s;
+            border-radius: 12px; font-size: 14px; font-weight: 600; background: #ffffff; border: 1px solid #e4e4e7;
+            position: relative; transition: all 0.2s; color: #a1a1aa;
         }
-        .dark .day-cell {
-            background: #121212; border: 1px solid #27272a;
-        }
+        .dark .day-cell { background: #121212; border-color: #1f2937; }
         .day-cell.active-month { color: #18181b; }
         .dark .day-cell.active-month { color: #f4f4f5; }
-        
         .day-cell.today { border-color: #3b82f6; color: #3b82f6; }
+        
         .day-cell.has-log::after { content: ''; width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; position: absolute; bottom: 6px; box-shadow: 0 0 5px #10b981;}
         .day-cell.has-upgrade::before { content: ''; width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%; position: absolute; top: 6px; right: 6px; }
+        
         .day-cell.selected { 
             border: 2px solid #10b981; transform: scale(1.08); background: rgba(16, 185, 129, 0.15); 
             z-index: 10; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); 
         }
 
-        #agenda-panel { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(110%); }
-        #agenda-panel.open { transform: translateY(0); }
+        /* Slide-up Panels */
+        .slide-panel { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(110%); }
+        .slide-panel.open { transform: translateY(0); }
 
+        /* Toast Notification */
         #toast { transition: all 0.3s; transform: translateY(-20px); opacity: 0; pointer-events: none; }
         #toast.show { transform: translateY(0); opacity: 1; }
-        
-        /* Custom border utility to override default hard borders */
-        .border-brand-border { border-color: #e4e4e7; }
-        .dark .border-brand-border { border-color: #1f2937; }
-        
-        /* Custom scrollbar for chat window to look native */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+
+        /* Progress Bars */
+        .progress-bg { background-color: #e4e4e7; border-radius: 999px; overflow: hidden; height: 8px; }
+        .dark .progress-bg { background-color: #27272a; }
+        .progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
     </style>
 </head>
-<body class="antialiased h-[100dvh] w-full overflow-hidden flex flex-col">
+<body class="antialiased">
 
-    <!-- HEADER: Fixed to top via flex -->
-    <header class="glass-panel pt-[env(safe-area-inset-top)] shrink-0 z-50 px-4 py-3 flex justify-between items-center h-16">
-        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-white border border-brand-border active:scale-95 transition">
+    <header class="glass-panel pt-[env(safe-area-inset-top)] shrink-0 z-40 px-4 py-3 flex justify-between items-center h-16 relative">
+        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 active:scale-95 transition">
             <i class="fa-solid fa-gear"></i>
         </button>
         
-        <div class="flex flex-col items-center justify-center absolute left-1/2 -translate-x-1/2 w-48 text-center">
-            <h1 class="text-emerald-500 font-black tracking-wider uppercase text-[12px] flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-bolt"></i> Ramblas ADV Maintenance
+        <div class="flex flex-col items-center justify-center absolute left-1/2 -translate-x-1/2">
+            <h1 class="text-emerald-500 font-black tracking-widest uppercase text-[13px] whitespace-nowrap flex items-center gap-2">
+                <i class="fa-solid fa-bolt"></i> Ramblas ADV
             </h1>
-            <span class="text-[9px] text-utah-500 font-mono tracking-widest font-bold mt-0.5">SOUTHERN UTAH</span>
+            <span class="text-[9px] text-utah-500 font-mono tracking-widest font-bold">SOUTHERN UTAH</span>
         </div>
         
         <div class="flex flex-col items-end cursor-pointer" onclick="toggleSettings(true)">
             <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Odometer</div>
             <div class="flex items-center text-sm font-mono font-bold text-zinc-900 dark:text-white">
-                <span id="header-miles-display">204.6</span>
+                <span id="header-odo">204.6</span>
                 <span class="text-zinc-500 ml-1">mi</span>
             </div>
         </div>
     </header>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500/20 border border-emerald-500 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-white dark:bg-transparent">
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[150] bg-emerald-500/20 border border-emerald-500 text-emerald-400 px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
         <i class="fa-solid fa-check-circle"></i> <span id="toast-msg">Saved Locally</span>
     </div>
 
+    <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="fixed inset-0 z-[100] hidden bg-zinc-200/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform" id="settings-content">
-            <div class="p-4 border-b border-brand-border flex justify-between items-center">
+        <div class="bg-white dark:bg-brand-card border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform" id="settings-content">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
                 <h3 class="text-sm font-bold tracking-wider text-zinc-900 dark:text-white uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-emerald-500"></i> Preferences
+                    <i class="fa-solid fa-sliders text-emerald-500"></i> Settings & Profile
                 </h3>
-                <button onclick="toggleSettings(false)" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
+                <button onclick="toggleSettings(false)" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
             <div class="p-6 flex flex-col gap-6 max-h-[75vh] overflow-y-auto">
                 
-                <!-- Bike Stats -->
-                <div class="flex flex-col gap-3">
-                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-                        <i class="fa-solid fa-gauge-high text-emerald-400"></i> Bike Mileage
-                    </label>
-                    <div class="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-900 border border-brand-border p-2 rounded-2xl">
-                        <input type="number" step="0.1" id="settings-odo-input" onchange="updateMetrics()" class="flex-grow bg-transparent text-xl font-black text-zinc-900 dark:text-white px-3 focus:outline-none text-center">
-                        <div class="bg-white dark:bg-zinc-800 border border-brand-border text-zinc-500 dark:text-zinc-400 text-xs font-bold px-3 py-2 rounded-xl">MILES</div>
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3">Bike Configuration</h4>
+                    <div class="flex items-center justify-between bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 mb-2">
+                        <label class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Total Odometer</label>
+                        <div class="flex items-center w-24">
+                            <input type="number" id="settings-odo" step="0.1" onchange="updateProfile()" class="w-full bg-transparent text-right font-mono font-bold text-sm text-zinc-900 dark:text-white focus:outline-none focus:text-emerald-500">
+                            <span class="text-xs text-zinc-500 ml-1">mi</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="border-t border-brand-border"></div>
-
-                <!-- Rider Profile -->
-                <div class="flex flex-col gap-3">
-                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-                        <i class="fa-solid fa-user-astronaut text-sky-400"></i> Rider Profile
-                    </label>
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-400 mb-3">Rider Profile</h4>
                     <div class="flex gap-3">
-                        <div class="flex-1 flex flex-col gap-1">
-                            <div class="flex items-center bg-zinc-100 dark:bg-zinc-900 border border-brand-border p-2 rounded-2xl">
-                                <input type="number" id="settings-weight-input" onchange="updateMetrics()" class="w-full bg-transparent text-lg font-black text-zinc-900 dark:text-white px-2 focus:outline-none text-center">
-                                <span class="text-[10px] font-bold text-zinc-400 mr-2">LBS</span>
+                        <div class="flex-1 flex flex-col gap-1 bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3">
+                            <label class="text-[9px] font-bold uppercase text-zinc-500">Weight</label>
+                            <div class="flex items-center">
+                                <input type="number" id="settings-weight" onchange="updateProfile()" class="w-full bg-transparent font-bold text-sm text-zinc-900 dark:text-white focus:outline-none">
+                                <span class="text-xs text-zinc-500">lbs</span>
                             </div>
                         </div>
-                        <div class="flex-1 flex flex-col gap-1">
-                            <div class="flex items-center bg-zinc-100 dark:bg-zinc-900 border border-brand-border p-2 rounded-2xl">
-                                <input type="number" id="settings-height-input" onchange="updateMetrics()" class="w-full bg-transparent text-lg font-black text-zinc-900 dark:text-white px-2 focus:outline-none text-center">
-                                <span class="text-[10px] font-bold text-zinc-400 mr-2">IN</span>
+                        <div class="flex-1 flex flex-col gap-1 bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3">
+                            <label class="text-[9px] font-bold uppercase text-zinc-500">Height</label>
+                            <div class="flex items-center">
+                                <input type="number" id="settings-height" onchange="updateProfile()" placeholder="70" class="w-full bg-transparent font-bold text-sm text-zinc-900 dark:text-white focus:outline-none">
+                                <span class="text-xs text-zinc-500">in</span>
                             </div>
                         </div>
                     </div>
-                    <p class="text-[10px] text-zinc-500 leading-relaxed text-center">Updates fork physics, dropper insertion depth, and AI context automatically.</p>
                 </div>
-                
-                <div class="border-t border-brand-border"></div>
-                
-                <!-- Theme Toggle -->
-                <div class="flex flex-col gap-3">
-                    <label class="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
-                        <i class="fa-solid fa-moon text-indigo-400"></i> Theme Preference
-                    </label>
-                    <div class="flex gap-2">
-                        <button onclick="setTheme('light')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-brand-border text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">Light</button>
-                        <button onclick="setTheme('dark')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-brand-border text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">Dark</button>
-                        <button onclick="setTheme('system')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-brand-border text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl transition">System</button>
+
+                <!-- Manuals & Specs section added per PDF request -->
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-3">Manuals & Quick Specs</h4>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 flex flex-col gap-2">
+                        <div class="flex justify-between items-center border-b themed-border pb-2">
+                            <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Front Axle Torque</span>
+                            <span class="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded">9 - 13.5 Nm</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b themed-border pb-2">
+                            <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Pedal Torque</span>
+                            <span class="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded">30 - 35 Nm</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-2 border-b themed-border">
+                            <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Tire Pressure limits</span>
+                            <span class="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded">20 - 40 PSI</span>
+                        </div>
+                        <a href="https://drop.ui.com/9df1f725-f26b-40fb-80c1-6d568fe04b0e" target="_blank" rel="noopener noreferrer" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-file-pdf"></i> Open Full Manual (PDF)
+                        </a>
                     </div>
                 </div>
 
-                <div class="border-t border-brand-border"></div>
+                <div class="flex gap-2">
+                    <button onclick="setTheme('light')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border themed-border text-zinc-900 dark:text-white font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl transition">Light</button>
+                    <button onclick="setTheme('dark')" class="flex-1 bg-zinc-100 dark:bg-zinc-900 border themed-border text-zinc-900 dark:text-white font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl transition">Dark</button>
+                </div>
 
-                <!-- Danger Zone -->
-                <div class="flex flex-col gap-3">
-                    <label class="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
-                    </label>
-                    <button id="btn-reset-logs" onclick="requestReset()" class="bg-red-500/10 text-red-600 dark:text-red-500 hover:bg-red-500/20 border border-red-500/30 font-bold text-sm py-4 rounded-2xl transition w-full">
-                        Delete All App Data
+                <div class="border-t themed-border pt-4 mt-2">
+                    <button id="btn-reset-logs" onclick="requestReset()" class="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30 font-bold text-sm py-3 rounded-xl transition w-full">
+                        Delete App Data
                     </button>
-                    <div id="reset-confirm-box" class="hidden flex flex-col gap-3 bg-red-50 dark:bg-red-950/30 p-4 rounded-2xl border border-red-500/50">
-                        <p class="text-xs text-red-600 dark:text-red-300 text-center font-bold">Are you absolutely sure? This cannot be undone.</p>
+                    <div id="reset-confirm-box" class="hidden flex flex-col gap-3 bg-red-950/30 p-4 rounded-xl border border-red-500/50">
+                        <p class="text-xs text-red-300 text-center font-bold">Are you absolutely sure?</p>
                         <div class="flex gap-2">
-                            <button onclick="cancelReset()" class="flex-1 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold text-xs py-3 rounded-xl">Cancel</button>
-                            <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-3 rounded-xl shadow-lg">Yes, Delete</button>
+                            <button onclick="cancelReset()" class="flex-1 bg-zinc-800 text-white font-bold text-xs py-2 rounded-lg">Cancel</button>
+                            <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-2 rounded-lg">Yes, Delete</button>
                         </div>
                     </div>
                 </div>
@@ -235,17 +255,32 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto overflow-x-hidden relative">
+    <!-- MAIN SCROLLABLE AREA -->
+    <main class="relative pb-6">
 
-        <!-- TAB: BIKE -->
+        <!-- TAB: BIKE HOME -->
         <div id="tab-bike" class="tab-content active px-4 py-6">
-            <div class="bg-white dark:bg-brand-card rounded-3xl border border-brand-border p-4 mb-6 relative overflow-hidden shadow-sm">
-                <!-- Borealis Image -->
+            
+            <div id="reminders-dashboard" class="mb-6 flex flex-col gap-2">
+                <!-- Populated dynamically based on components -->
+            </div>
+
+            <!-- Pro Mechanic Tips Widget (From Blog Image) -->
+            <div class="bg-indigo-500/10 border border-indigo-500/30 rounded-3xl p-5 mb-6 relative overflow-hidden shadow-sm" onclick="rotateTip()">
+                <i class="fa-solid fa-lightbulb text-indigo-500/20 text-6xl absolute -bottom-2 -right-2"></i>
+                <h3 class="text-indigo-500 font-black tracking-widest uppercase text-[10px] mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-wrench"></i> Aventon Mechanic's Note
+                </h3>
+                <p id="pro-tip-text" class="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed relative z-10 transition-opacity duration-300 font-medium">
+                    Loading tip...
+                </p>
+                <div class="absolute top-4 right-4 text-[9px] text-indigo-500/50 uppercase tracking-widest font-black">Tap for next</div>
+            </div>
+
+            <div class="themed-card rounded-3xl border themed-border p-4 mb-6 relative overflow-hidden shadow-sm">
                 <img src="https://aventon-images.imgix.net/files/Ramblas-ADV-Borealis-01_0a20df8e-c83d-4548-adba-4e1fbee7258a.jpg?v=1773163832&auto=compress,format&w=2500&q=25" 
                      alt="Ramblas ADV Borealis" class="w-full h-auto rounded-2xl">
                 
-                <!-- Interactive Hotspots -->
                 <div class="hotspot" style="top: 32%; left: 78%;" onclick="selectHotspot('fork')"></div>
                 <div class="hotspot" style="top: 70%; left: 52%;" onclick="selectHotspot('motor')"></div>
                 <div class="hotspot" style="top: 40%; left: 85%;" onclick="selectHotspot('brakes')"></div>
@@ -253,271 +288,294 @@
                 <div class="hotspot" style="top: 28%; left: 38%;" onclick="selectHotspot('dropper')"></div>
                 <div class="hotspot" style="top: 52%; left: 62%;" onclick="selectHotspot('battery')"></div>
                 
-                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-bold text-white shadow-xl whitespace-nowrap">
-                    Tap a component to service
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[10px] uppercase tracking-widest font-black text-white shadow-xl whitespace-nowrap">
+                    Tap a component
                 </div>
             </div>
 
-            <!-- Southern Utah Alert -->
-            <div class="bg-utah-500/10 border border-utah-500/30 rounded-3xl p-5 relative overflow-hidden">
+            <div class="bg-utah-500/10 border border-utah-500/30 rounded-3xl p-5 relative overflow-hidden shadow-sm">
                 <i class="fa-solid fa-mountain-sun text-utah-500/20 text-6xl absolute -bottom-2 -right-2"></i>
-                <h3 class="text-utah-500 font-black tracking-widest uppercase text-xs mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-location-dot"></i> Desert Condition Alert
+                <h3 class="text-utah-500 font-black tracking-widest uppercase text-[10px] mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot"></i> Utah Desert Context
                 </h3>
-                <p class="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">
-                    Riding in Southern Utah requires special care. Red sandstone silt destroys wet lubes and scratches stanchions. <strong>Wipe fork seals dry after every ride</strong> and use <span class="text-emerald-500 dark:text-emerald-400 font-bold">dry wax chain lube</span> only.
+                <p class="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed relative z-10">
+                    Red sandstone silt destroys wet lubes and scratches stanchions. <strong>Wipe fork seals dry after every ride</strong> and use <span class="text-emerald-500 dark:text-emerald-400 font-bold">dry wax chain lube</span> only. Store battery indoors (Avoid 100°F+ heat).
                 </p>
             </div>
         </div>
 
         <!-- TAB: GARAGE -->
         <div id="tab-garage" class="tab-content px-4 py-6">
-            
             <div class="flex items-center gap-4 mb-6">
-                <div id="garage-icon-bg" class="w-14 h-14 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-sm">
-                    <i id="garage-icon" class="fa-solid fa-gears text-2xl text-emerald-500 dark:text-emerald-400"></i>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                    <i id="garage-icon" class="fa-solid fa-gears text-2xl text-emerald-500"></i>
                 </div>
                 <div>
-                    <h2 id="garage-title" class="text-xl font-black text-zinc-900 dark:text-white">RockShox Psylo Silver R</h2>
-                    <p id="garage-subtitle" class="text-xs text-zinc-500 dark:text-zinc-400 font-mono">130mm Coil / 35mm Stanchions</p>
+                    <h2 id="garage-title" class="text-xl font-black text-zinc-900 dark:text-white leading-tight">RockShox Psylo Silver R</h2>
+                    <p id="garage-subtitle" class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono mt-1">130mm Coil</p>
                 </div>
             </div>
 
-            <div id="physics-widget" class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 mb-6 shadow-sm">
+            <div id="physics-widget" class="themed-card border themed-border rounded-3xl p-5 mb-6 shadow-sm">
                 <div class="flex justify-between items-start mb-3">
                     <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-500 dark:text-sky-400 flex items-center gap-2">
                         <i class="fa-solid fa-scale-balanced"></i> Suspension Physics
                     </h4>
-                    <span id="physics-status" class="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black">Undersprung</span>
+                    <span id="physics-status" class="bg-zinc-200 dark:bg-zinc-800 text-[9px] px-2 py-1 rounded border themed-border uppercase font-black">Calc</span>
                 </div>
                 <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
-                    At <span id="physics-weight-display" class="font-bold text-zinc-900 dark:text-white">217</span> lbs, the stock medium coil sits too deep in its travel. Keeping rebound dampening at <strong>"Turtle" (Slow)</strong> prevents violent top-outs on Utah sandstone drops.
+                    At <span id="physics-weight-display" class="font-bold text-zinc-900 dark:text-white">217</span> lbs, the stock medium coil sits deep. Keep rebound dampening at <strong>"Turtle" (Slow)</strong> to prevent violent top-outs.
                 </p>
-                <div class="bg-zinc-50 dark:bg-zinc-900 border border-brand-border rounded-xl p-3 flex items-center justify-between">
-                    <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400">Upgrade Path:</span>
-                    <span class="text-xs font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-800 border border-brand-border px-3 py-1 rounded-lg">Solo Air Kit (#11.4018.103.022)</span>
-                </div>
             </div>
 
             <div class="mb-6">
-                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-3 px-2">Service Checklist</h4>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 px-2">Service Checklist</h4>
                 <div id="garage-checklist" class="flex flex-col gap-2">
-                    <!-- Populated by JS -->
+                    <!-- Populated dynamically -->
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 relative overflow-hidden shadow-sm">
-                <div class="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-5 pointer-events-none">
-                    <i class="fa-solid fa-wrench text-6xl"></i>
-                </div>
-                <h4 class="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500 mb-4 flex items-center gap-2">
+            <div class="themed-card border themed-border rounded-3xl p-5 relative overflow-hidden shadow-sm">
+                <h4 class="text-xs font-black uppercase tracking-widest text-emerald-500 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square"></i> New Service Log
                 </h4>
                 
-                <textarea id="log-notes" rows="3" placeholder="What did you do? (e.g., wiped down red dirt, checked tire pressure...)" class="w-full bg-zinc-50 dark:bg-zinc-900 border border-brand-border rounded-2xl p-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition mb-3 resize-none"></textarea>
-                
-                <div class="flex gap-2 relative z-10">
-                    <button onclick="enhanceNote()" class="bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-sky-500 dark:text-sky-400 border border-brand-border w-12 h-12 rounded-xl flex items-center justify-center transition active:scale-95 shadow-sm">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </button>
-                    <button onclick="saveLogEntry()" class="flex-grow bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 shadow-md">
-                        <i class="fa-solid fa-check"></i> Save Log at <span id="log-btn-miles">204.6</span> mi
-                    </button>
+                <div class="flex gap-3 mb-3">
+                    <div class="flex-1 flex flex-col gap-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Date</label>
+                        <input type="date" id="log-date" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                    <div class="flex-1 flex flex-col gap-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Mileage</label>
+                        <div class="flex items-center bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl px-3 focus-within:border-emerald-500 transition">
+                            <input type="number" step="0.1" id="log-miles" class="w-full bg-transparent py-3 pl-0 text-sm font-bold text-zinc-900 dark:text-white focus:outline-none text-right">
+                            <span class="text-[10px] font-bold text-zinc-400 ml-1">mi</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
+                <div class="flex flex-col gap-1 mb-4">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Action Performed</label>
+                    <textarea id="log-notes" rows="3" placeholder="Notes (e.g., wiped red dirt, checked tire pressure)" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                </div>
+                
+                <button onclick="saveLogEntry()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 py-4 shadow-[0_4px_15px_rgba(16,185,129,0.2)]">
+                    <i class="fa-solid fa-check"></i> Save Log
+                </button>
+            </div>
         </div>
 
         <!-- TAB: LOGS -->
         <div id="tab-logs" class="tab-content px-4 py-6">
-            
             <div class="mb-8">
-                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Installed Upgrades</h4>
-                <div class="flex flex-col gap-3">
-                    <div class="bg-white dark:bg-brand-card border border-brand-border rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center border border-brand-border">
-                                <i class="fa-solid fa-shoe-prints text-zinc-500 dark:text-zinc-400"></i>
-                            </div>
-                            <div>
-                                <h5 class="text-sm font-bold text-zinc-900 dark:text-white">OneUp Comp Pedals</h5>
-                                <p class="text-[10px] text-zinc-500">Installed • Check pins periodically</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-brand-card border border-sky-300 dark:border-sky-500/30 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden shadow-sm">
-                        <div class="absolute top-0 right-0 w-1 h-full bg-sky-500"></div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center border border-sky-200 dark:border-sky-500/20">
-                                <i class="fa-solid fa-hand text-sky-500 dark:text-sky-400"></i>
-                            </div>
-                            <div>
-                                <h5 class="text-sm font-bold text-zinc-900 dark:text-white">Ergon GA3 Grips</h5>
-                                <p class="text-[10px] text-sky-600 dark:text-sky-400">Scheduled: Next Wednesday</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-sky-600 dark:text-sky-500 bg-sky-100 dark:bg-sky-500/10 px-2 py-1 rounded">Pending</span>
-                    </div>
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Upgrades & Mods</h4>
+                    <button onclick="openModPlanner()" class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
+                <div id="upgrades-list" class="flex flex-col gap-3"></div>
+            </div>
+
+            <!-- Mod Planner Modal -->
+            <div id="mod-planner-modal" class="hidden bg-zinc-100 dark:bg-zinc-900 border themed-border rounded-2xl p-4 mb-6 relative shadow-inner">
+                <button onclick="closeModPlanner()" class="absolute top-3 right-3 text-zinc-400 hover:text-zinc-600 dark:hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <h5 class="text-xs font-black uppercase tracking-widest text-emerald-500 mb-3">Schedule Upgrade</h5>
+                <input type="text" id="mod-title" placeholder="e.g. Tubeless Conversion" class="w-full bg-white dark:bg-brand-card border themed-border rounded-xl p-3 text-sm mb-2 focus:outline-none focus:border-emerald-500">
+                <input type="date" id="mod-date" class="w-full bg-white dark:bg-brand-card border themed-border rounded-xl p-3 text-sm mb-3 focus:outline-none focus:border-emerald-500">
+                <button onclick="saveMod()" class="w-full bg-emerald-600 text-white font-bold text-xs py-3 rounded-xl shadow-md">Schedule</button>
             </div>
 
             <div>
-                <h4 class="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Service Registry</h4>
-                <div id="history-list" class="flex flex-col gap-3">
-                    <!-- Populated by JS -->
-                </div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 px-2">Service History</h4>
+                <div id="history-list" class="flex flex-col gap-3"></div>
             </div>
             
-            <div class="mt-8 border-t border-brand-border pt-6 flex gap-3">
-                <button onclick="exportBackup()" class="flex-1 bg-white dark:bg-zinc-900 border border-brand-border text-zinc-600 dark:text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-zinc-900 dark:hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-download mr-1"></i> Export
-                </button>
-                <button onclick="importBackup()" class="flex-1 bg-white dark:bg-zinc-900 border border-brand-border text-zinc-600 dark:text-zinc-400 font-bold text-xs py-3 rounded-xl hover:text-zinc-900 dark:hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-upload mr-1"></i> Import
-                </button>
+            <div class="mt-8 border-t themed-border pt-6 flex gap-3">
+                <button onclick="exportBackup()" class="flex-1 bg-white dark:bg-zinc-900 border themed-border text-zinc-600 dark:text-zinc-400 font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl hover:text-zinc-900 dark:hover:text-white shadow-sm transition">Export</button>
+                <button onclick="importBackup()" class="flex-1 bg-white dark:bg-zinc-900 border themed-border text-zinc-600 dark:text-zinc-400 font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl hover:text-zinc-900 dark:hover:text-white shadow-sm transition">Import</button>
             </div>
         </div>
 
         <!-- TAB: PLAN (Calendar) -->
         <div id="tab-plan" class="tab-content px-4 py-6">
-            <div class="bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-5 mb-6 shadow-sm">
+            <div class="themed-card border themed-border rounded-3xl p-5 mb-6 shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <h2 id="cal-month-year" class="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Month</h2>
                     <div class="flex gap-2">
-                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-brand-border text-zinc-600 dark:text-zinc-400 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-brand-border text-zinc-600 dark:text-zinc-400 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-zinc-500 dark:text-zinc-600 mb-2 uppercase tracking-widest">
-                    <div class="w-full">Su</div><div class="w-full">Mo</div><div class="w-full">Tu</div><div class="w-full">We</div><div class="w-full">Th</div><div class="w-full">Fr</div><div class="w-full">Sa</div>
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-zinc-400 dark:text-zinc-600 mb-2 uppercase tracking-widest">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
                 </div>
-                <div id="calendar-grid" class="calendar-grid">
-                    <!-- JS Grid -->
-                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
             </div>
             
             <div class="flex justify-center gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Logged</div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Service</div>
                 <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span> Planned</div>
             </div>
         </div>
 
-        <!-- TAB: AI -->
-        <div id="tab-ai" class="tab-content px-4 py-6 flex flex-col h-full min-h-[400px]">
-            <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-4 mb-4 flex gap-4 items-center shrink-0">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center animate-pulse border border-emerald-300 dark:border-emerald-500/50">
-                    <i class="fa-solid fa-robot text-emerald-600 dark:text-emerald-400 text-xl"></i>
-                </div>
+        <!-- TAB: REPORTS (Radar) -->
+        <div id="tab-reports" class="tab-content px-4 py-6">
+            <div class="flex justify-between items-end mb-6 px-1">
                 <div>
-                    <h3 class="text-sm font-black text-zinc-900 dark:text-white">Gemini Trail Mechanic</h3>
-                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">Context: Utah Dirt / <span id="ai-weight-context">217</span>lbs / <span id="ai-height-context">71</span>"</p>
+                    <h2 class="text-xl font-black text-zinc-900 dark:text-white mb-1">Radar Dashboard</h2>
+                    <p class="text-xs text-zinc-500">Track part lifespan & tap to manage.</p>
                 </div>
-            </div>
-            
-            <div id="chat-window" class="flex-grow overflow-y-auto bg-white dark:bg-brand-card border border-brand-border rounded-3xl p-4 flex flex-col gap-4 mb-4 custom-scrollbar shadow-inner">
-                <div class="bg-zinc-100 dark:bg-zinc-900 border border-brand-border p-3 rounded-2xl rounded-tl-sm w-[85%] self-start text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                    Hey! I know you're sitting at <span class="text-emerald-600 dark:text-emerald-400 font-bold" id="ai-miles-context">204.6</span> miles on the Ramblas. Got questions about tuning that Psylo fork for your height and weight, or dealing with red dust?
-                </div>
-            </div>
-            
-            <div class="flex gap-2 shrink-0">
-                <input type="text" id="chat-input" placeholder="Ask about maintenance..." class="flex-grow bg-white dark:bg-zinc-900 border border-brand-border rounded-2xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shadow-sm">
-                <button onclick="askMechanic()" class="bg-emerald-600 hover:bg-emerald-500 text-white w-12 h-12 rounded-2xl flex items-center justify-center transition active:scale-95 shadow-md">
-                    <i class="fa-solid fa-paper-plane"></i>
+                <button onclick="openComponentManager(null)" class="text-[10px] font-bold text-sky-500 bg-sky-500/10 px-3 py-1.5 rounded-full flex items-center gap-1 active:scale-95 transition">
+                    <i class="fa-solid fa-plus"></i> Add
                 </button>
+            </div>
+
+            <div class="flex flex-col gap-4" id="radar-container">
+                <!-- Dynamically populated Component Bars -->
             </div>
         </div>
 
     </main>
 
-    <!-- SLIDE UP PANEL -->
-    <div id="agenda-panel" class="fixed left-0 w-full bg-white dark:bg-brand-card border-t border-brand-border z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-4" style="bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);">
+    <!-- COMPONENT MANAGER SLIDE-UP -->
+    <div id="component-panel" class="absolute bottom-0 left-0 w-full themed-card border-t themed-border z-[60] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-[env(safe-area-inset-bottom)] slide-panel">
         <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="agenda-title" class="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Date Summary</h3>
-                <button onclick="closeAgenda()" class="w-8 h-8 rounded-full bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 flex items-center justify-center border border-brand-border hover:text-zinc-900 dark:text-white transition"><i class="fa-solid fa-chevron-down"></i></button>
+            <div class="flex justify-between items-start mb-6 border-b themed-border pb-4">
+                <div class="flex items-center gap-3">
+                    <div id="comp-icon-box" class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border themed-border">
+                        <i id="comp-icon-disp" class="fa-solid fa-gear text-zinc-500 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 id="comp-title-disp" class="text-lg font-black text-zinc-900 dark:text-white leading-tight">Component</h3>
+                        <p id="comp-last-service" class="text-[10px] text-zinc-500 font-mono mt-1">Last: 204.6 mi</p>
+                    </div>
+                </div>
+                <button onclick="closeComponentManager()" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="agenda-content" class="min-h-[150px] max-h-[30vh] overflow-y-auto">
-                <!-- Dynamically populated -->
+            
+            <div id="comp-editor-body" class="flex flex-col gap-4">
+                <input type="hidden" id="edit-comp-id">
+                
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Component Name</label>
+                    <input type="text" id="edit-comp-title" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Service Interval (Miles)</label>
+                    <div class="flex items-center bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl px-3 focus-within:border-emerald-500 transition">
+                        <input type="number" id="edit-comp-interval" class="w-full bg-transparent py-3 pl-0 text-sm font-bold text-zinc-900 dark:text-white focus:outline-none">
+                        <span class="text-[10px] font-bold text-zinc-400 ml-1">mi max</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-2">
+                    <button onclick="saveComponentEdits()" class="flex-1 bg-zinc-800 dark:bg-zinc-700 text-white font-bold text-xs rounded-xl py-3 transition active:scale-95">Save Config</button>
+                    <button onclick="quickLogComponent()" id="btn-quick-log" class="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl py-3 flex items-center justify-center gap-2 transition active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.2)]">
+                        <i class="fa-solid fa-check"></i> Mark Serviced Today
+                    </button>
+                </div>
+                <div class="flex justify-center mt-2">
+                    <button onclick="deleteComponent()" id="btn-delete-comp" class="text-[10px] text-red-500 font-bold uppercase tracking-widest py-2 hidden">Delete Component</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION: Fixed bottom as part of flex column -->
-    <nav class="shrink-0 w-full glass-nav z-50 pb-[env(safe-area-inset-bottom)]">
-        <div class="flex justify-around items-center py-3 px-2">
-            <button onclick="switchTab('tab-bike')" id="btn-tab-bike" class="nav-btn active flex flex-col items-center gap-1 w-16">
-                <i class="fa-solid fa-motorcycle text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Bike</span>
+    <!-- CALENDAR AGENDA SLIDE-UP -->
+    <div id="agenda-panel" class="absolute bottom-0 left-0 w-full themed-card border-t themed-border z-40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-[env(safe-area-inset-bottom)] slide-panel">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="agenda-title" class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest">Date Summary</h3>
+                <button onclick="closeAgenda()" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 flex items-center justify-center border themed-border transition"><i class="fa-solid fa-chevron-down"></i></button>
+            </div>
+            <div id="agenda-content" class="min-h-[150px] max-h-[40vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="shrink-0 glass-nav border-t themed-border z-50 pb-[env(safe-area-inset-bottom)]">
+        <div class="flex justify-around items-center py-2 px-1">
+            <button onclick="switchTab('tab-bike')" id="btn-tab-bike" class="nav-btn active flex flex-col items-center gap-1 w-14 py-1">
+                <i class="fa-solid fa-motorcycle text-[18px]"></i>
+                <span class="text-[8px] font-black uppercase tracking-widest">Home</span>
             </button>
-            <button onclick="switchTab('tab-garage')" id="btn-tab-garage" class="nav-btn flex flex-col items-center gap-1 w-16">
-                <i class="fa-solid fa-wrench text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Garage</span>
+            <button onclick="switchTab('tab-garage')" id="btn-tab-garage" class="nav-btn flex flex-col items-center gap-1 w-14 py-1">
+                <i class="fa-solid fa-wrench text-[18px]"></i>
+                <span class="text-[8px] font-black uppercase tracking-widest">Garage</span>
             </button>
-            <button onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn flex flex-col items-center gap-1 w-16">
-                <i class="fa-solid fa-clipboard-list text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Logs</span>
+            <button onclick="switchTab('tab-logs')" id="btn-tab-logs" class="nav-btn flex flex-col items-center gap-1 w-14 py-1">
+                <i class="fa-solid fa-clipboard-list text-[18px]"></i>
+                <span class="text-[8px] font-black uppercase tracking-widest">Logs</span>
             </button>
-            <button onclick="switchTab('tab-plan')" id="btn-tab-plan" class="nav-btn flex flex-col items-center gap-1 w-16">
-                <i class="fa-solid fa-calendar-days text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Plan</span>
+            <button onclick="switchTab('tab-plan')" id="btn-tab-plan" class="nav-btn flex flex-col items-center gap-1 w-14 py-1">
+                <i class="fa-solid fa-calendar-days text-[18px]"></i>
+                <span class="text-[8px] font-black uppercase tracking-widest">Plan</span>
             </button>
-            <button onclick="switchTab('tab-ai')" id="btn-tab-ai" class="nav-btn flex flex-col items-center gap-1 w-16 relative">
-                <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <i class="fa-solid fa-sparkles text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">AI Mech</span>
+            <button onclick="switchTab('tab-reports')" id="btn-tab-reports" class="nav-btn flex flex-col items-center gap-1 w-14 py-1">
+                <i class="fa-solid fa-chart-pie text-[18px]"></i>
+                <span class="text-[8px] font-black uppercase tracking-widest">Radar</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // --- Theme Management ---
-        function initTheme() {
-            const savedTheme = localStorage.getItem('ramblas_theme') || 'system';
-            setTheme(savedTheme, true);
-        }
-
+        // --- Theme ---
+        function initTheme() { setTheme(localStorage.getItem('ramblas_theme') || 'system', true); }
         function setTheme(theme, init = false) {
-            if (theme !== 'system') {
-                localStorage.setItem('ramblas_theme', theme);
-            } else {
-                localStorage.removeItem('ramblas_theme');
-            }
-
+            localStorage.setItem('ramblas_theme', theme);
             const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('meta-theme-color').setAttribute('content', '#000000');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('meta-theme-color').setAttribute('content', '#f4f4f5');
-            }
-            if (!init && typeof showToast === 'function') {
-                showToast("Theme Updated");
-            }
+            if (isDark) { document.documentElement.classList.add('dark'); document.getElementById('meta-theme-color').setAttribute('content', '#000000'); } 
+            else { document.documentElement.classList.remove('dark'); document.getElementById('meta-theme-color').setAttribute('content', '#f4f4f5'); }
+            if (!init) showToast("Theme Updated");
         }
-        
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (!localStorage.getItem('ramblas_theme')) setTheme('system');
-        });
 
-        // --- Data Structure & Storage ---
-        const DB_KEY = 'ramblas_adv_local_v4';
-        let appState = { odometer: 204.6, riderWeight: 217, riderHeight: 71, history: [] }; // Height added (inches)
+        // --- Pro Mechanic Tips Logic ---
+        const proTips = [
+            "Avoid using high-pressure water near the motor hub, bottom bracket, or display. It forces water into the seals.",
+            "Always lubricate your chain immediately after washing to prevent flash rust on your NX Eagle cassette.",
+            "Check your tire pressure weekly. Riding under-inflated tires severely reduces your 708Wh battery range.",
+            "Store your battery indoors. Utah garages can easily exceed 104°F, which degrades lithium-ion cells.",
+            "Inspect brake pads monthly. Sintered pads wear quickly on abrasive red sandstone trails."
+        ];
+        function rotateTip() {
+            const el = document.getElementById('pro-tip-text');
+            if(!el) return;
+            el.style.opacity = 0;
+            setTimeout(() => {
+                let current = el.innerText;
+                let next = proTips[Math.floor(Math.random() * proTips.length)];
+                while(next === current) next = proTips[Math.floor(Math.random() * proTips.length)]; // prevent same tip twice
+                el.innerText = next;
+                el.style.opacity = 1;
+            }, 300);
+        }
+
+        // --- Data Architecture ---
+        const DB_KEY = 'ramblas_adv_v6';
+        let appState = { 
+            odometer: 204.6, riderWeight: 217, riderHeight: 70, 
+            components: [], // Loaded from defaults below if empty
+            history: [], upgrades: [] 
+        };
         let currentHotspot = 'fork';
         let currentCalDate = new Date();
 
+        // Components adjusted based on Aventon Blog Maintenance guide emphasizing small intervals
+        const defaultComponents = [
+            { id: 'c_chain', title: "Clean & Lube Chain", interval: 50, icon: "fa-droplet" },
+            { id: 'c_tires', title: "Check Tire PSI (20-40)", interval: 25, icon: "fa-gauge-high" },
+            { id: 'c_brakes', title: "SRAM DB6 Brake Pads", interval: 250, icon: "fa-circle-stop" },
+            { id: 'c_fork', title: "RockShox Low-Leg Service", interval: 500, icon: "fa-arrow-down-up-across-line" }
+        ];
+
         const hotspots = {
-            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil / 35mm Stanchions", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions completely dry (Utah Dust)", "Check rebound 'Turtle' setting", "Check thru-axle torque"] },
-            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque System", icon: "fa-bolt", check: ["Wipe casing down, avoid high-pressure water", "Check mounting bolts for play"] },
-            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil System (DO NOT USE DOT)", icon: "fa-circle-stop", check: ["Check pad wear against red rock grit", "Clean rotors with isopropyl alcohol"] },
-            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "High-Torque eMTB Application", icon: "fa-gear", check: ["Measure chain stretch (Crucial for eMTBs)", "Apply Dry Wax Lube only"] },
-            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean", "Check cable tension at lever"] },
-            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check rubber charge port seal", "Do not store in direct 100°F Utah sun"] }
+            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions dry", "Check rebound 'Turtle'"] },
+            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque", icon: "fa-bolt", check: ["Wipe casing down (No high pressure!)", "Check mounting bolts"] },
+            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors"] },
+            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube"] },
+            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean"] },
+            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F"] }
         };
 
         window.onload = function() {
@@ -525,385 +583,344 @@
             loadState();
             updateUIFromState();
             selectHotspot('fork');
-            renderHistory();
-            renderCalendar();
+            renderAll();
+            rotateTip(); // initialize first tip
+            setInterval(rotateTip, 15000); // Rotate every 15 seconds automatically
         };
 
         function loadState() {
             const saved = localStorage.getItem(DB_KEY);
             if (saved) {
-                appState = JSON.parse(saved);
+                try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {}
             }
-            if(!appState.history) appState.history = [];
-            if(!appState.odometer) appState.odometer = 204.6;
-            if(!appState.riderWeight) appState.riderWeight = 217;
-            if(!appState.riderHeight) appState.riderHeight = 71;
+            if(!appState.components || appState.components.length === 0) appState.components = [...defaultComponents];
+            if(!appState.upgrades) appState.upgrades = [];
+        }
+        function saveState() { localStorage.setItem(DB_KEY, JSON.stringify(appState)); }
+
+        function renderAll() {
+            renderHistory();
+            renderUpgrades();
+            renderCalendar();
+            renderReports(); 
+            checkReminders(); 
         }
 
-        function saveState() {
-            localStorage.setItem(DB_KEY, JSON.stringify(appState));
-        }
-
-        // --- STREAMING_CHUNK: Core App Functions (Tabs, Settings, Updates) ---
+        // --- Navigation ---
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             document.getElementById('btn-' + tabId).classList.add('active');
-            
-            closeAgenda();
+            closeAgenda(); closeComponentManager();
+            if(tabId === 'tab-reports') renderReports();
         };
 
         window.toggleSettings = function(show) {
-            const modal = document.getElementById('settings-modal');
-            const content = document.getElementById('settings-content');
+            const m = document.getElementById('settings-modal');
+            const c = document.getElementById('settings-content');
             if (show) {
-                // Populate inputs
-                document.getElementById('settings-odo-input').value = appState.odometer;
-                document.getElementById('settings-weight-input').value = appState.riderWeight;
-                document.getElementById('settings-height-input').value = appState.riderHeight;
-                
-                modal.classList.remove('hidden');
-                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+                document.getElementById('settings-odo').value = appState.odometer;
+                document.getElementById('settings-weight').value = appState.riderWeight;
+                document.getElementById('settings-height').value = appState.riderHeight || '';
+                m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
             } else {
-                modal.classList.add('opacity-0');
-                content.classList.add('scale-95');
-                cancelReset();
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                m.classList.add('opacity-0'); c.classList.add('scale-95');
+                cancelReset(); setTimeout(() => m.classList.add('hidden'), 300);
             }
         };
 
-        window.updateMetrics = function() {
-            appState.odometer = parseFloat(document.getElementById('settings-odo-input').value) || 0;
-            appState.riderWeight = parseInt(document.getElementById('settings-weight-input').value) || 217;
-            appState.riderHeight = parseInt(document.getElementById('settings-height-input').value) || 71;
-            
-            saveState();
-            updateUIFromState();
-            updatePhysicsWidget();
-            showToast("Profile Updated");
+        window.updateProfile = function() {
+            appState.odometer = parseFloat(document.getElementById('settings-odo').value) || appState.odometer;
+            appState.riderWeight = parseInt(document.getElementById('settings-weight').value) || appState.riderWeight;
+            appState.riderHeight = parseInt(document.getElementById('settings-height').value) || appState.riderHeight;
+            saveState(); updateUIFromState(); renderAll();
         };
 
         function updateUIFromState() {
-            document.getElementById('header-miles-display').innerText = appState.odometer;
-            document.getElementById('log-btn-miles').innerText = appState.odometer;
+            document.getElementById('header-odo').innerText = appState.odometer;
             document.getElementById('physics-weight-display').innerText = appState.riderWeight;
-            document.getElementById('ai-miles-context').innerText = appState.odometer;
-            document.getElementById('ai-weight-context').innerText = appState.riderWeight;
-            document.getElementById('ai-height-context').innerText = appState.riderHeight;
-        }
-
-        function updatePhysicsWidget() {
-            const status = document.getElementById('physics-status');
-            const w = appState.riderWeight;
-            if (currentHotspot !== 'fork') return;
-
-            if (w > 200) {
-                status.className = "bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black";
-                status.innerText = "Undersprung";
-            } else if (w >= 150 && w <= 200) {
-                status.className = "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] px-2 py-1 rounded border border-emerald-500/30 uppercase font-black";
-                status.innerText = "Optimal";
-            } else {
-                status.className = "bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 text-[9px] px-2 py-1 rounded border border-sky-500/30 uppercase font-black";
-                status.innerText = "Oversprung";
-            }
+            const logMilesEl = document.getElementById('log-miles');
+            const logDateEl = document.getElementById('log-date');
+            if(logMilesEl) logMilesEl.value = appState.odometer;
+            if(logDateEl && !logDateEl.value) logDateEl.value = new Date().toISOString().split('T')[0];
         }
 
         window.selectHotspot = function(id) {
             currentHotspot = id;
             const data = hotspots[id];
-            
-            document.getElementById('garage-icon').className = `fa-solid ${data.icon} text-2xl text-emerald-600 dark:text-emerald-400`;
+            document.getElementById('garage-icon').className = `fa-solid ${data.icon} text-2xl text-emerald-500`;
             document.getElementById('garage-title').innerText = data.title;
             document.getElementById('garage-subtitle').innerText = data.sub;
-            
-            const checkHTML = data.check.map(c => `
-                <div class="bg-zinc-50 dark:bg-zinc-900 border border-brand-border rounded-xl p-3 flex items-start gap-3 shadow-sm">
-                    <input type="checkbox" class="mt-1 accent-emerald-500 w-4 h-4 rounded border-brand-border">
+            document.getElementById('garage-checklist').innerHTML = data.check.map(c => `
+                <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 flex items-start gap-3 shadow-sm">
+                    <input type="checkbox" class="mt-1 accent-emerald-500 w-4 h-4 rounded">
                     <span class="text-sm text-zinc-700 dark:text-zinc-300 leading-tight">${c}</span>
                 </div>
             `).join('');
-            document.getElementById('garage-checklist').innerHTML = checkHTML;
             
             document.getElementById('physics-widget').style.display = (id === 'fork') ? 'block' : 'none';
-            if(id === 'fork') updatePhysicsWidget();
-
+            if(id === 'fork') {
+                const w = appState.riderWeight;
+                const st = document.getElementById('physics-status');
+                if (w > 200) { st.className="bg-red-500/10 text-red-500 text-[9px] px-2 py-1 rounded border border-red-500/30 uppercase font-black"; st.innerText="Undersprung"; }
+                else if (w >= 150) { st.className="bg-emerald-500/10 text-emerald-500 text-[9px] px-2 py-1 rounded border border-emerald-500/30 uppercase font-black"; st.innerText="Optimal"; }
+                else { st.className="bg-sky-500/10 text-sky-500 text-[9px] px-2 py-1 rounded border border-sky-500/30 uppercase font-black"; st.innerText="Oversprung"; }
+            }
             switchTab('tab-garage');
         };
 
-        // --- STREAMING_CHUNK: History and Calendar Logic ---
+        // --- Unified Service Logging ---
         window.saveLogEntry = function() {
             const noteArea = document.getElementById('log-notes');
+            const dateInput = document.getElementById('log-date').value;
+            const milesInput = parseFloat(document.getElementById('log-miles').value);
+
+            if(!dateInput) return showToast("Select a date!");
+            if(isNaN(milesInput)) return showToast("Enter valid mileage!");
             if(!noteArea.value.trim()) return showToast("Enter a note first!");
 
-            const entry = {
-                id: Date.now().toString(),
-                dateStr: new Date().toISOString().split('T')[0],
-                miles: appState.odometer,
-                system: hotspots[currentHotspot].title,
-                icon: hotspots[currentHotspot].icon,
-                note: noteArea.value.trim()
-            };
-
-            appState.history.unshift(entry);
-            saveState();
-            showToast("Log Saved");
+            createLog(hotspots[currentHotspot].title, hotspots[currentHotspot].icon, milesInput, dateInput, noteArea.value.trim());
             
             noteArea.value = '';
-            renderHistory();
-            renderCalendar();
+            document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('#garage-checklist input').forEach(cb => cb.checked = false);
+            showToast("Log Saved");
+        };
+
+        function createLog(systemName, iconClass, miles, dateStr, note) {
+            appState.history.unshift({ id: Date.now().toString(), dateStr, miles, system: systemName, icon: iconClass, note });
+            if(miles > appState.odometer) { appState.odometer = miles; updateUIFromState(); }
+            saveState(); renderAll();
+        }
+
+        // --- Dynamic Reports & Component Radar ---
+        function getComponentStats(comp) {
+            const logs = appState.history.filter(l => l.system === comp.title).sort((a,b) => new Date(b.dateStr) - new Date(a.dateStr) || b.miles - a.miles);
+            const lastLog = logs[0];
+            const milesSince = lastLog ? Math.max(0, parseFloat((appState.odometer - lastLog.miles).toFixed(1))) : appState.odometer;
+            const lastDate = lastLog ? lastLog.dateStr : 'Never Serviced';
+            const lastMiles = lastLog ? lastLog.miles : 0;
+            return { milesSince, lastDate, lastMiles };
+        }
+
+        window.renderReports = function() {
+            const radar = document.getElementById('radar-container');
+            if(appState.components.length === 0) return radar.innerHTML = `<p class="text-xs text-zinc-500 text-center py-4">No components tracked.</p>`;
             
-            document.querySelectorAll('#garage-checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+            radar.innerHTML = appState.components.map(comp => {
+                const stats = getComponentStats(comp);
+                const pct = Math.min(100, (stats.milesSince / comp.interval) * 100);
+                let textCol = stats.milesSince >= comp.interval ? 'text-red-500' : 'text-zinc-900 dark:text-white';
+                let bgCol = stats.milesSince >= comp.interval ? 'bg-red-500' : 'bg-emerald-500';
+                let cardClass = stats.milesSince >= comp.interval ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]' : 'themed-border shadow-sm';
+
+                return `
+                <div class="themed-card border rounded-2xl p-4 cursor-pointer active:scale-95 transition ${cardClass}" onclick="openComponentManager('${comp.id}')">
+                    <div class="flex justify-between items-end mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center border themed-border"><i class="fa-solid ${comp.icon} text-zinc-500 text-sm"></i></div>
+                            <div>
+                                <h4 class="text-sm font-black text-zinc-900 dark:text-white">${comp.title}</h4>
+                                <p class="text-[9px] text-zinc-500 font-mono mt-0.5">Limit: ${comp.interval} mi</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-sm font-mono font-bold ${textCol}">${stats.milesSince.toFixed(1)}</span>
+                            <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Miles Since</span>
+                        </div>
+                    </div>
+                    <div class="progress-bg"><div class="progress-fill ${bgCol}" style="width: ${pct}%"></div></div>
+                </div>`;
+            }).join('');
+        };
+
+        window.openComponentManager = function(id) {
+            const panel = document.getElementById('component-panel');
+            const delBtn = document.getElementById('btn-delete-comp');
+            const qLogBtn = document.getElementById('btn-quick-log');
+            
+            if (id) {
+                const comp = appState.components.find(c => c.id === id);
+                const stats = getComponentStats(comp);
+                document.getElementById('edit-comp-id').value = comp.id;
+                document.getElementById('edit-comp-title').value = comp.title;
+                document.getElementById('edit-comp-interval').value = comp.interval;
+                
+                document.getElementById('comp-icon-disp').className = `fa-solid ${comp.icon} text-emerald-500 text-xl`;
+                document.getElementById('comp-title-disp').innerText = comp.title;
+                document.getElementById('comp-last-service').innerText = `Last Serviced: ${stats.lastDate} (@ ${stats.lastMiles}mi)`;
+                
+                delBtn.classList.remove('hidden'); qLogBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('edit-comp-id').value = 'new';
+                document.getElementById('edit-comp-title').value = '';
+                document.getElementById('edit-comp-interval').value = 100;
+                
+                document.getElementById('comp-icon-disp').className = `fa-solid fa-plus text-sky-500 text-xl`;
+                document.getElementById('comp-title-disp').innerText = "New Tracked Part";
+                document.getElementById('comp-last-service').innerText = "Set name and interval limit";
+                
+                delBtn.classList.add('hidden'); qLogBtn.classList.add('hidden');
+            }
+            panel.classList.add('open');
+        };
+
+        window.closeComponentManager = function() { document.getElementById('component-panel').classList.remove('open'); };
+
+        window.saveComponentEdits = function() {
+            const id = document.getElementById('edit-comp-id').value;
+            const title = document.getElementById('edit-comp-title').value.trim();
+            const interval = parseInt(document.getElementById('edit-comp-interval').value);
+            
+            if(!title || isNaN(interval)) return showToast("Enter title and interval");
+
+            if(id === 'new') {
+                appState.components.push({ id: 'c_'+Date.now(), title, interval, icon: 'fa-gear' });
+            } else {
+                const comp = appState.components.find(c => c.id === id);
+                if(comp) { comp.title = title; comp.interval = interval; }
+            }
+            saveState(); renderAll(); closeComponentManager(); showToast("Component Saved");
+        };
+
+        window.deleteComponent = function() {
+            const id = document.getElementById('edit-comp-id').value;
+            appState.components = appState.components.filter(c => c.id !== id);
+            saveState(); renderAll(); closeComponentManager(); showToast("Component Deleted");
+        };
+
+        window.quickLogComponent = function() {
+            const id = document.getElementById('edit-comp-id').value;
+            const comp = appState.components.find(c => c.id === id);
+            if(!comp) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            createLog(comp.title, comp.icon, appState.odometer, today, "Quick log marked from Radar Dashboard.");
+            closeComponentManager(); showToast(`${comp.title} Serviced!`);
+        };
+
+        // --- Reminders Engine ---
+        window.checkReminders = function() {
+            const dash = document.getElementById('reminders-dashboard');
+            let alerts = [];
+
+            appState.components.forEach(comp => {
+                const stats = getComponentStats(comp);
+                if(stats.milesSince >= comp.interval) {
+                    alerts.push(`<div class="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-3 rounded-xl flex items-center justify-between text-xs shadow-sm cursor-pointer" onclick="switchTab('tab-reports')">
+                        <div class="flex items-center gap-3"><i class="fa-solid ${comp.icon} text-lg"></i> <span>${comp.title} Overdue! (${stats.milesSince.toFixed(0)}mi)</span></div>
+                        <i class="fa-solid fa-arrow-right opacity-50"></i>
+                    </div>`);
+                }
+            });
+
+            if(alerts.length > 0) dash.innerHTML = alerts.join('');
+            else dash.innerHTML = `<div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold shadow-sm"><i class="fa-solid fa-check"></i> All systems go!</div>`;
+        };
+
+        // --- Upgrades & Calendar & History renders ---
+        window.openModPlanner = function() { document.getElementById('mod-planner-modal').classList.remove('hidden'); document.getElementById('mod-date').value = new Date().toISOString().split('T')[0]; };
+        window.closeModPlanner = function() { document.getElementById('mod-planner-modal').classList.add('hidden'); };
+        
+        window.saveMod = function() {
+            const title = document.getElementById('mod-title').value.trim();
+            const dateStr = document.getElementById('mod-date').value;
+            if(!title || !dateStr) return showToast("Enter title and date!");
+            appState.upgrades.push({ id: 'u_'+Date.now(), title, dateStr, completed: false });
+            saveState(); closeModPlanner(); document.getElementById('mod-title').value = ''; renderAll(); showToast("Upgrade Scheduled");
+        };
+
+        window.toggleUpgrade = function(id) {
+            const upg = appState.upgrades.find(u => u.id === id);
+            if(upg) { upg.completed = !upg.completed; saveState(); renderAll(); }
+        };
+
+        window.renderUpgrades = function() {
+            const list = document.getElementById('upgrades-list');
+            if(appState.upgrades.length === 0) return list.innerHTML = `<p class="text-xs text-zinc-500 text-center py-4">No upgrades planned.</p>`;
+            const sorted = [...appState.upgrades].sort((a,b) => (a.completed === b.completed) ? 0 : a.completed ? 1 : -1);
+            list.innerHTML = sorted.map(u => {
+                if(u.completed) {
+                    return `<div class="themed-card border themed-border rounded-2xl p-4 flex items-center justify-between opacity-60 shadow-sm transition cursor-pointer" onclick="toggleUpgrade('${u.id}')">
+                        <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border themed-border"><i class="fa-solid fa-wrench text-zinc-400"></i></div><h5 class="text-sm font-bold text-zinc-500 line-through decoration-2">${u.title}</h5></div>
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i></div>`;
+                } else {
+                    return `<div class="themed-card border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer active:scale-95 transition" onclick="toggleUpgrade('${u.id}')">
+                        <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><i class="fa-solid fa-wrench text-amber-500"></i></div><div><h5 class="text-sm font-bold text-zinc-900 dark:text-white">${u.title}</h5><p class="text-[10px] font-mono text-amber-500 mt-0.5">Target: ${u.dateStr}</p></div></div>
+                        <div class="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center"></div></div>`;
+                }
+            }).join('');
         };
 
         window.renderHistory = function() {
             const list = document.getElementById('history-list');
-            if (appState.history.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-zinc-500 text-xs bg-white dark:bg-brand-card rounded-2xl border border-brand-border shadow-sm">No maintenance logged yet.</div>`;
-                return;
-            }
-
+            if (appState.history.length === 0) return list.innerHTML = `<div class="text-center py-6 text-zinc-500 text-xs">No service logs yet.</div>`;
             list.innerHTML = appState.history.map(log => `
-                <div class="bg-white dark:bg-brand-card border border-brand-border rounded-2xl p-4 relative group shadow-sm">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid ${log.icon} text-emerald-500 text-sm"></i>
-                            <span class="text-xs font-black uppercase text-zinc-900 dark:text-white">${log.system}</span>
-                        </div>
-                        <span class="text-[10px] text-zinc-500 font-mono">${log.dateStr}</span>
-                    </div>
-                    <p class="text-sm text-zinc-700 dark:text-zinc-300 mb-3">${log.note}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400 bg-sky-100 dark:bg-sky-500/10 px-2 py-1 rounded">@ ${log.miles} mi</span>
-                        <button onclick="deleteLog('${log.id}')" class="text-red-500/50 hover:text-red-500 transition px-2 py-1">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
+                <div class="themed-card border themed-border rounded-2xl p-4 relative shadow-sm">
+                    <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><i class="fa-solid ${log.icon} text-emerald-500 text-xs"></i><span class="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">${log.system}</span></div><span class="text-[9px] text-zinc-400 font-mono">${log.dateStr}</span></div>
+                    <p class="text-xs text-zinc-700 dark:text-zinc-300 mb-3">${log.note}</p>
+                    <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-sky-500 bg-sky-500/10 px-2 py-1 rounded">@ ${log.miles} mi</span><button onclick="deleteLog('${log.id}')" class="text-zinc-300 hover:text-red-500 transition px-2 py-1"><i class="fa-solid fa-trash-can"></i></button></div>
                 </div>
             `).join('');
         };
 
-        window.deleteLog = function(id) {
-            appState.history = appState.history.filter(l => l.id !== id);
-            saveState();
-            renderHistory();
-            renderCalendar();
-            showToast("Log Deleted");
-        };
+        window.deleteLog = function(id) { appState.history = appState.history.filter(l => l.id !== id); saveState(); renderAll(); };
 
-        window.changeMonth = function(delta) {
-            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
-            renderCalendar();
-        };
-
+        // Calendar
+        window.changeMonth = function(delta) { currentCalDate.setMonth(currentCalDate.getMonth() + delta); renderCalendar(); };
         window.renderCalendar = function() {
-            const year = currentCalDate.getFullYear();
-            const month = currentCalDate.getMonth();
-            const today = new Date();
-            
+            const year = currentCalDate.getFullYear(); const month = currentCalDate.getMonth(); const today = new Date().toISOString().split('T')[0];
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-
-            for(let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="day-cell opacity-0 pointer-events-none"></div>`;
-            }
-
-            let nextWed = new Date();
-            nextWed.setDate(today.getDate() + ((3 + 7 - today.getDay()) % 7));
-            if(nextWed.getDate() === today.getDate()) nextWed.setDate(nextWed.getDate() + 7);
-            const wedStr = nextWed.toISOString().split('T')[0];
-
+            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+            for(let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
             for(let i = 1; i <= daysInMonth; i++) {
                 let dStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                let isToday = (dStr === today.toISOString().split('T')[0]);
+                let isToday = (dStr === today);
                 let hasLogs = appState.history.some(l => l.dateStr === dStr);
-                let hasUpgrade = (dStr === wedStr);
-                
-                let classes = "day-cell active-month shadow-sm";
-                if(isToday) classes += " today border-blue-400 dark:border-blue-500";
-                if(hasLogs) classes += " has-log";
-                if(hasUpgrade) classes += " has-upgrade";
-
-                grid.innerHTML += `<div class="${classes}" onclick="selectDate(this, '${dStr}', ${hasUpgrade})">${i}</div>`;
+                let pendingMods = appState.upgrades.filter(u => u.dateStr === dStr && !u.completed);
+                let classes = "day-cell active-month";
+                if(isToday) classes += " today"; if(hasLogs) classes += " has-log"; if(pendingMods.length > 0) classes += " has-upgrade";
+                grid.innerHTML += `<div class="${classes}" onclick="selectDate(this, '${dStr}')">${i}</div>`;
             }
         };
 
-        window.selectDate = function(elem, dateStr, hasUpgrade) {
-            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
-            elem.classList.add('selected');
-            
-            const panel = document.getElementById('agenda-panel');
-            const content = document.getElementById('agenda-content');
-            document.getElementById('agenda-title').innerText = dateStr;
-
+        window.selectDate = function(elem, dateStr) {
+            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected')); elem.classList.add('selected');
+            const panel = document.getElementById('agenda-panel'); document.getElementById('agenda-title').innerText = dateStr;
             const logs = appState.history.filter(l => l.dateStr === dateStr);
+            const mods = appState.upgrades.filter(u => u.dateStr === dateStr && !u.completed);
             let html = '';
-
-            if (hasUpgrade) {
-                html += `
-                    <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl p-4 mb-3">
-                        <div class="flex items-center gap-2 mb-1">
-                            <i class="fa-solid fa-wrench text-amber-500"></i> <span class="text-xs font-black uppercase text-amber-600 dark:text-amber-500">Planned Upgrade</span>
-                        </div>
-                        <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Install Ergon GA3 Grips</h4>
-                        <p class="text-xs text-zinc-600 dark:text-zinc-400 mt-1">Set wing angle parallel to forearm to prevent hand numbness on slickrock chatter.</p>
-                    </div>`;
-            }
-
-            if (logs.length > 0) {
-                html += logs.map(l => `
-                    <div class="border-l-2 border-emerald-500 pl-3 mb-4">
-                        <span class="text-[10px] text-zinc-500 font-mono">${l.system} • ${l.miles} mi</span>
-                        <p class="text-sm text-zinc-800 dark:text-zinc-200">${l.note}</p>
-                    </div>
-                `).join('');
-            } else if (!hasUpgrade) {
-                html = `
-                    <div class="text-center py-6">
-                        <i class="fa-solid fa-calendar-xmark text-4xl text-zinc-200 dark:text-zinc-800 mb-3"></i>
-                        <p class="text-zinc-500 text-sm mb-4">No maintenance logged on this date.</p>
-                        <button onclick="switchTab('tab-garage')" class="bg-emerald-100 dark:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30 font-bold py-2 px-6 rounded-xl text-xs active:scale-95 transition">
-                            Log Something Now
-                        </button>
-                    </div>
-                `;
-            }
-            
-            content.innerHTML = html;
-            panel.classList.add('open');
+            if (mods.length > 0) html += mods.map(m => `<div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-3 shadow-sm"><div class="flex items-center gap-2 mb-1"><i class="fa-solid fa-wrench text-amber-500 text-xs"></i> <span class="text-[10px] font-black uppercase tracking-widest text-amber-500">Scheduled Upgrade</span></div><h4 class="text-sm font-bold text-zinc-900 dark:text-white">${m.title}</h4></div>`).join('');
+            if (logs.length > 0) html += logs.map(l => `<div class="border-l-2 border-emerald-500 pl-3 mb-4"><span class="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">${l.system} • ${l.miles} mi</span><p class="text-xs text-zinc-700 dark:text-zinc-300 mt-1">${l.note}</p></div>`).join('');
+            else if (mods.length === 0) html = `<div class="text-center py-6"><p class="text-zinc-500 text-xs mb-3">No activity on this date.</p><button onclick="switchTab('tab-garage')" class="bg-emerald-600/10 text-emerald-500 border border-emerald-500/30 font-bold py-2 px-6 rounded-xl text-xs active:scale-95 transition">Log Service</button></div>`;
+            document.getElementById('agenda-content').innerHTML = html; panel.classList.add('open');
         };
 
-        window.closeAgenda = function() {
-            document.getElementById('agenda-panel').classList.remove('open');
-            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
-        };
+        window.closeAgenda = function() { document.getElementById('agenda-panel').classList.remove('open'); document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected')); };
 
-        // --- STREAMING_CHUNK: Utilities (Reset, Backup, AI) ---
-        window.requestReset = function() {
-            document.getElementById('btn-reset-logs').classList.add('hidden');
-            document.getElementById('reset-confirm-box').classList.remove('hidden');
-        };
-        window.cancelReset = function() {
-            document.getElementById('btn-reset-logs').classList.remove('hidden');
-            document.getElementById('reset-confirm-box').classList.add('hidden');
-        };
+        // --- Backups & Reset ---
+        window.requestReset = function() { document.getElementById('btn-reset-logs').classList.add('hidden'); document.getElementById('reset-confirm-box').classList.remove('hidden'); };
+        window.cancelReset = function() { document.getElementById('btn-reset-logs').classList.remove('hidden'); document.getElementById('reset-confirm-box').classList.add('hidden'); };
         window.executeReset = function() {
-            appState = { odometer: 204.6, riderWeight: 217, riderHeight: 71, history: [] };
-            saveState();
-            updateUIFromState();
-            renderHistory();
-            renderCalendar();
-            toggleSettings(false);
-            showToast("Data Erased");
+            appState = { odometer: 204.6, riderWeight: 217, riderHeight: 70, history: [], upgrades: [], components: [...defaultComponents] };
+            saveState(); updateUIFromState(); renderAll(); toggleSettings(false); showToast("Data Erased");
         };
-
         window.exportBackup = function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
-            const node = document.createElement('a');
-            node.setAttribute("href", dataStr);
-            node.setAttribute("download", "ramblas_backup.json");
-            document.body.appendChild(node);
-            node.click();
-            node.remove();
+            const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "ramblas_backup.json");
+            document.body.appendChild(node); node.click(); node.remove();
         };
-
         window.importBackup = function() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'application/json';
+            const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json';
             input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.readAsText(file, 'UTF-8');
-                reader.onload = readerEvent => {
-                    try {
-                        appState = JSON.parse(readerEvent.target.result);
-                        if(!appState.riderHeight) appState.riderHeight = 71; // patch old backups
-                        saveState();
-                        updateUIFromState();
-                        renderHistory();
-                        renderCalendar();
-                        showToast("Backup Restored!");
-                    } catch(err) { alert("Invalid file."); }
-                }
-            };
-            input.click();
+                const reader = new FileReader(); reader.readAsText(e.target.files[0], 'UTF-8');
+                reader.onload = r => { try { appState = JSON.parse(r.target.result); saveState(); updateUIFromState(); renderAll(); showToast("Backup Restored!"); } catch(err) { alert("Invalid file."); } }
+            }; input.click();
         };
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        }
-
-        async function fetchGemini(promptText) {
-            const apiKey = ""; // Handled seamlessly by Canvas
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-            const payload = { contents: [{ parts: [{ text: promptText }] }] };
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                if(data && data.candidates && data.candidates[0]) {
-                    return data.candidates[0].content.parts[0].text;
-                }
-            } catch(e) { console.error("AI Error:", e); }
-            return null;
-        }
-
-        window.enhanceNote = async function() {
-            const noteArea = document.getElementById('log-notes');
-            const original = noteArea.value.trim();
-            if(!original) return showToast("Type a rough note first!");
-            
-            noteArea.value = "AI Enhancing...";
-            const prompt = `Act as a professional bike mechanic. Rewrite this sloppy maintenance note into a clean, concise, single-sentence log entry suitable for a service registry. The bike is an Aventon Ramblas eMTB in Southern Utah. Original note: "${original}"`;
-            
-            const result = await fetchGemini(prompt);
-            if(result) {
-                noteArea.value = result.replace(/["*]/g, '').trim();
-                showToast("Note Enhanced");
-            } else {
-                noteArea.value = original;
-                showToast("AI Failed");
-            }
-        };
-
-        window.askMechanic = async function() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text) return;
-            
-            const windowDiv = document.getElementById('chat-window');
-            windowDiv.innerHTML += `<div class="bg-emerald-600 text-white p-3 rounded-2xl rounded-tr-sm w-[80%] self-end text-sm shadow-sm">${text}</div>`;
-            input.value = '';
-            windowDiv.scrollTop = windowDiv.scrollHeight;
-
-            const loadId = 'loading-' + Date.now();
-            windowDiv.innerHTML += `<div id="${loadId}" class="bg-zinc-50 dark:bg-zinc-900 border border-brand-border p-3 rounded-2xl rounded-tl-sm w-[80%] self-start text-sm text-zinc-500 dark:text-zinc-400 italic shadow-sm">Thinking...</div>`;
-            windowDiv.scrollTop = windowDiv.scrollHeight;
-
-            const prompt = `You are an expert mountain bike mechanic assisting a rider in Southern Utah on an Aventon Ramblas ADV eMTB. The rider weighs ${appState.riderWeight}lbs, is ${appState.riderHeight} inches tall, and has ${appState.odometer} miles on the bike. Keep the answer brief, helpful, and formatting plain (no markdown). Question: ${text}`;
-            
-            const response = await fetchGemini(prompt);
-            document.getElementById(loadId).remove();
-            
-            const reply = response || "Sorry, I couldn't connect right now. Check your torque specs manually!";
-            windowDiv.innerHTML += `<div class="bg-zinc-50 dark:bg-zinc-900 border border-brand-border p-3 rounded-2xl rounded-tl-sm w-[90%] self-start text-sm text-zinc-800 dark:text-zinc-300 leading-relaxed shadow-sm">${reply}</div>`;
-            windowDiv.scrollTop = windowDiv.scrollHeight;
-        };
-
+        function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
     </script>
 </body>
 </html>
