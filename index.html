@@ -757,7 +757,7 @@
         }
 
         // --- Data Architecture ---
-        const DB_KEY = 'ramblas_adv_v6';
+        const DB_KEY = 'ramblas_adv_v7';
         let appState = { 
             odometer: 204.6, riderWeight: 217, riderHeight: 70, 
             components: [], // Loaded from defaults below if empty
@@ -768,19 +768,34 @@
 
         // Components adjusted based on Aventon Blog Maintenance guide emphasizing small intervals
         const defaultComponents = [
-            { id: 'c_chain', title: "Clean & Lube Chain", interval: 50, icon: "fa-droplet" },
-            { id: 'c_tires', title: "Check Tire PSI (20-40)", interval: 25, icon: "fa-gauge-high" },
-            { id: 'c_brakes', title: "SRAM DB6 Brake Pads", interval: 250, icon: "fa-circle-stop" },
-            { id: 'c_fork', title: "RockShox Low-Leg Service", interval: 500, icon: "fa-arrow-down-up-across-line" }
+            { id: 'c_tires_daily', title: "Tires: Check damage/inflate", interval: 25, icon: "fa-gauge-high" },
+            { id: 'c_brakes_daily', title: "Brakes: Check levers", interval: 25, icon: "fa-circle-stop" },
+            { id: 'c_battery_daily', title: "Battery: Check charge/lock", interval: 25, icon: "fa-battery-three-quarters" },
+            { id: 'c_electrical_daily', title: "Electrical: Check connectors", interval: 25, icon: "fa-bolt" },
+            { id: 'c_hardware_75', title: "All Hardware: Inspect for loosening", interval: 75, icon: "fa-wrench" },
+            { id: 'c_frame_150', title: "Frame: Wipe down", interval: 150, icon: "fa-bicycle" },
+            { id: 'c_drivetrain_150', title: "Drivetrain: Check alignment", interval: 150, icon: "fa-gear" },
+            { id: 'c_derailleur_150', title: "Derailleur: Barrel adjuster", interval: 150, icon: "fa-arrows-left-right" },
+            { id: 'c_brakes_500', title: "Brake Pads: Inspect/bleed", interval: 500, icon: "fa-circle-stop" },
+            { id: 'c_cables_500', title: "Shift Cables: Clean/inspect", interval: 500, icon: "fa-wave-square" },
+            { id: 'c_chain_500', title: "Chain: Check stretch/lube", interval: 500, icon: "fa-link" },
+            { id: 'c_spokes_500', title: "Spokes: Inspect tension", interval: 500, icon: "fa-dharmachakra" },
+            { id: 'c_crankset_500', title: "Crankset/Pedals: Check bolt torque", interval: 500, icon: "fa-arrows-rotate" },
+            { id: 'c_accessories_500', title: "Accessories: Inspect mounting", interval: 500, icon: "fa-puzzle-piece" },
+            { id: 'c_drivetrain_1000', title: "Drivetrain: Inspect chain/cassette", interval: 1000, icon: "fa-gear" },
+            { id: 'c_cables_1000', title: "Cables/Housing: Inspect/replace", interval: 1000, icon: "fa-wave-square" },
+            { id: 'c_bottom_bracket_1000', title: "Bottom Bracket: Grease/Service", interval: 1000, icon: "fa-circle-notch" },
+            { id: 'c_brakes_1000', title: "Brake Pads: Replace", interval: 1000, icon: "fa-circle-stop" },
+            { id: 'c_tires_1000', title: "Tires: Replace", interval: 1000, icon: "fa-ring" }
         ];
 
         const hotspots = {
-            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions dry", "Check rebound 'Turtle'"] },
-            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque", icon: "fa-bolt", check: ["Wipe casing down (No high pressure!)", "Check mounting bolts"] },
-            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors"] },
-            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube"] },
-            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean"] },
-            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F"] }
+            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions dry", "Check rebound 'Turtle'", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque", icon: "fa-bolt", check: ["Wipe casing down (No high pressure!)", "Check mounting bolts", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] }
         };
 
         window.onload = function() {
