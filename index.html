@@ -256,9 +256,12 @@
                             <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Tire Pressure limits</span>
                             <span class="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded">20 - 40 PSI</span>
                         </div>
-                        <a href="https://drop.ui.com/9df1f725-f26b-40fb-80c1-6d568fe04b0e" target="_blank" rel="noopener noreferrer" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
+                        <a href="https://stgeorgestorage.com/wp-content/uploads/2026/06/V2-RAMBLAS-ADV_English_comp.pdf" target="_blank" rel="noopener noreferrer" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
                             <i class="fa-solid fa-file-pdf"></i> Open Full Manual (PDF)
                         </a>
+                        <button onclick="toggleSpecs(true)" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-wrench"></i> Maintenance & Torque Specs
+                        </button>
                     </div>
                 </div>
 
@@ -278,6 +281,115 @@
                             <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-2 rounded-lg">Yes, Delete</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPECS MODAL -->
+    <div id="specs-modal" class="fixed inset-0 z-[100] hidden bg-zinc-200/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-card border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-lg overflow-y-auto max-h-[90vh] shadow-2xl transform transition-transform" id="specs-content">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 sticky top-0 z-10">
+                <h3 class="text-sm font-bold tracking-wider text-zinc-900 dark:text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-wrench text-amber-500"></i> Maintenance & Torque Specs
+                </h3>
+                <button onclick="toggleSpecs(false)" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 flex flex-col gap-6">
+                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-600 dark:text-red-400 text-xs font-medium">
+                    <span class="font-bold uppercase tracking-widest text-[10px] block mb-1">Notice</span>
+                    If you do not have the experience, skill, or appropriate tools to complete these maintenance tasks, Aventon highly recommends having a certified, reputable bike mechanic perform these procedures.
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3">Master Maintenance & Service Schedule</h4>
+                    <div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+                            <thead class="bg-zinc-100 dark:bg-zinc-900/50 text-[10px] uppercase font-bold text-zinc-500">
+                                <tr>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Interval</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Component</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Task</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Torque Spec</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/50 bg-white dark:bg-zinc-900">
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Tires</td><td class="px-3 py-2">Check for damage; inflate to 20–40 PSI.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Brakes</td><td class="px-3 py-2">Ensure levers are firm and do not touch handlebar.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Battery</td><td class="px-3 py-2">Check charge level; ensure it is locked to the frame.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Electrical</td><td class="px-3 py-2">Check connectors are seated and free from moisture.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">50–100 mi</td><td class="px-3 py-2">All Hardware</td><td class="px-3 py-2">Inspect for loosening; check spokes and bolted connections.</td><td class="px-3 py-2 font-mono">Refer to bolt spec</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Frame</td><td class="px-3 py-2">Wipe down with a damp cloth.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Drivetrain</td><td class="px-3 py-2">Check alignment of chain, freewheel, chainring, derailleur.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Derailleur</td><td class="px-3 py-2">Use barrel adjuster to tension cable if needed.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Brake Pads</td><td class="px-3 py-2">Inspect alignment and wear; bleed as needed.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Shift Cables</td><td class="px-3 py-2">Clean and inspect for corrosion or fraying.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Chain</td><td class="px-3 py-2">Check for stretch; clean and lubricate.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Spokes</td><td class="px-3 py-2">Inspect tension and true the wheel if loose.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Crankset/Pedals</td><td class="px-3 py-2">Check bolt torque.</td><td class="px-3 py-2 font-mono">30–35 Nm</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Accessories</td><td class="px-3 py-2">Inspect mounting bolts, hardware, and alignment.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Drivetrain</td><td class="px-3 py-2">Inspect chain, chainring, cassette, and derailleur.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Cables/Housing</td><td class="px-3 py-2">Inspect all; replace if worn or damaged.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Bottom Bracket</td><td class="px-3 py-2">Grease/Service.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Brake Pads</td><td class="px-3 py-2">Replace.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Tires</td><td class="px-3 py-2">Replace if worn or damaged.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-400 mb-3">Bolt Locking Torque Reference</h4>
+                    <p class="text-[10px] text-zinc-500 mb-2">Use this table for all hardware verification. Always match the Bolt Specification printed on or near the hardware to the correct torque value.</p>
+                    <div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+                            <thead class="bg-zinc-100 dark:bg-zinc-900/50 text-[10px] uppercase font-bold text-zinc-500">
+                                <tr>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Specification</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Torque (N.m)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/50 bg-white dark:bg-zinc-900">
+                                <tr><td class="px-3 py-2 font-medium">M5</td><td class="px-3 py-2 font-mono">5–6 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M6</td><td class="px-3 py-2 font-mono">9–10 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M7</td><td class="px-3 py-2 font-mono">11–12 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M8</td><td class="px-3 py-2 font-mono">14–15 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Front Wheel Axle</td><td class="px-3 py-2 font-mono">9–13.5 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Pedals (Right/Left)</td><td class="px-3 py-2 font-mono">30–35 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Seat Adjustment Bolt</td><td class="px-3 py-2 font-mono">10–12 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Seatpost Clamp</td><td class="px-3 py-2 font-mono">5–7 N.m</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-3">Key DIY Maintenance Instructions</h4>
+                    <ul class="space-y-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Drivetrain:</strong> Keep the chain clean and lubricated. In wet, salty, or dusty conditions, perform this more frequently.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Wheels & Tires:</strong> Tires must be inflated within the range posted on the tire sidewalls (20–40 PSI). Rims should run true without wobbles, dents, or kinks.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Brakes:</strong> Brake levers must be firm and not touch the grips. If the system feels "spongy," the hydraulic brakes must be bled to remove air.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Bearings:</strong> Periodically check headset, wheel, pedal, and bottom bracket bearings for free movement; they should operate without excess play, grinding, or rattling.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Long-Term Storage:</strong> If storing for >2 weeks, remove the battery, store it in a dry, climate-controlled location (32°F–104°F), and check/recharge the battery to 75% monthly.</div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -315,6 +427,8 @@
                 <div class="hotspot" style="top: 72%; left: 22%;" onclick="selectHotspot('drivetrain')"></div>
                 <div class="hotspot" style="top: 28%; left: 38%;" onclick="selectHotspot('dropper')"></div>
                 <div class="hotspot" style="top: 52%; left: 62%;" onclick="selectHotspot('battery')"></div>
+                <div class="hotspot" style="top: 75%; left: 80%;" onclick="selectHotspot('tires')"></div>
+                <div class="hotspot" style="top: 75%; left: 15%;" onclick="selectHotspot('tires')"></div>
                 
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[10px] uppercase tracking-widest font-black text-white shadow-xl whitespace-nowrap">
                     Tap a component
@@ -354,6 +468,42 @@
                 <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
                     At <span id="physics-weight-display" class="font-bold text-zinc-900 dark:text-white">217</span> lbs, the stock medium coil sits deep. Keep rebound dampening at <strong>"Turtle" (Slow)</strong> to prevent violent top-outs.
                 </p>
+            </div>
+
+            <div id="tire-physics-widget" class="themed-card border themed-border rounded-3xl p-5 mb-6 shadow-sm" style="display: none;">
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-gauge-high"></i> Tire Pressure Calculator
+                </h4>
+                
+                <div class="flex items-center justify-between bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 mb-4">
+                    <div class="text-[10px] uppercase font-bold text-zinc-500">Total Weight (Rider + 54lb Bike)</div>
+                    <div class="font-mono font-bold text-sm text-zinc-900 dark:text-white"><span id="tire-total-weight">--</span> lbs</div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <div class="flex-1 bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-center">
+                        <div class="text-[9px] uppercase font-black text-sky-500 mb-1">Tubeless (Ideal)</div>
+                        <div class="font-mono font-bold text-lg text-zinc-900 dark:text-white" id="tire-tubeless-psi">--/--</div>
+                        <div class="text-[8px] text-zinc-500 uppercase">F/R PSI</div>
+                    </div>
+                    <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center">
+                        <div class="text-[9px] uppercase font-black text-emerald-500 mb-1">With Tubes (Safety)</div>
+                        <div class="font-mono font-bold text-lg text-zinc-900 dark:text-white" id="tire-tubes-psi">--/--</div>
+                        <div class="text-[8px] text-zinc-500 uppercase">F/R PSI</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">Tubeless is better:</strong> Allows lower pressure for better grip & smooth ride.
+                    </div>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">Tubes need more air:</strong> Always add 3-5 PSI to prevent "pinch flats".
+                    </div>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">The "Feel" Test:</strong> Too bouncy? Let a tiny bit of air out. Rim hitting ground? Put a tiny bit of air in.
+                    </div>
+                </div>
             </div>
 
             <div class="mb-6">
@@ -645,7 +795,7 @@
         }
 
         // --- Data Architecture ---
-        const DB_KEY = 'ramblas_adv_v6';
+        const DB_KEY = 'ramblas_adv_v7';
         let appState = { 
             odometer: 204.6, riderWeight: 217, riderHeight: 70, 
             components: [], // Loaded from defaults below if empty
@@ -656,19 +806,35 @@
 
         // Components adjusted based on Aventon Blog Maintenance guide emphasizing small intervals
         const defaultComponents = [
-            { id: 'c_chain', title: "Clean & Lube Chain", interval: 50, icon: "fa-droplet" },
-            { id: 'c_tires', title: "Check Tire PSI (20-40)", interval: 25, icon: "fa-gauge-high" },
-            { id: 'c_brakes', title: "SRAM DB6 Brake Pads", interval: 250, icon: "fa-circle-stop" },
-            { id: 'c_fork', title: "RockShox Low-Leg Service", interval: 500, icon: "fa-arrow-down-up-across-line" }
+            { id: 'c_tires_daily', title: "Tires: Check damage/inflate", interval: 25, icon: "fa-gauge-high" },
+            { id: 'c_brakes_daily', title: "Brakes: Check levers", interval: 25, icon: "fa-circle-stop" },
+            { id: 'c_battery_daily', title: "Battery: Check charge/lock", interval: 25, icon: "fa-battery-three-quarters" },
+            { id: 'c_electrical_daily', title: "Electrical: Check connectors", interval: 25, icon: "fa-bolt" },
+            { id: 'c_hardware_75', title: "All Hardware: Inspect for loosening", interval: 75, icon: "fa-wrench" },
+            { id: 'c_frame_150', title: "Frame: Wipe down", interval: 150, icon: "fa-bicycle" },
+            { id: 'c_drivetrain_150', title: "Drivetrain: Check alignment", interval: 150, icon: "fa-gear" },
+            { id: 'c_derailleur_150', title: "Derailleur: Barrel adjuster", interval: 150, icon: "fa-arrows-left-right" },
+            { id: 'c_brakes_500', title: "Brake Pads: Inspect/bleed", interval: 500, icon: "fa-circle-stop" },
+            { id: 'c_cables_500', title: "Shift Cables: Clean/inspect", interval: 500, icon: "fa-wave-square" },
+            { id: 'c_chain_500', title: "Chain: Check stretch/lube", interval: 500, icon: "fa-link" },
+            { id: 'c_spokes_500', title: "Spokes: Inspect tension", interval: 500, icon: "fa-dharmachakra" },
+            { id: 'c_crankset_500', title: "Crankset/Pedals: Check bolt torque", interval: 500, icon: "fa-arrows-rotate" },
+            { id: 'c_accessories_500', title: "Accessories: Inspect mounting", interval: 500, icon: "fa-puzzle-piece" },
+            { id: 'c_drivetrain_1000', title: "Drivetrain: Inspect chain/cassette", interval: 1000, icon: "fa-gear" },
+            { id: 'c_cables_1000', title: "Cables/Housing: Inspect/replace", interval: 1000, icon: "fa-wave-square" },
+            { id: 'c_bottom_bracket_1000', title: "Bottom Bracket: Grease/Service", interval: 1000, icon: "fa-circle-notch" },
+            { id: 'c_brakes_1000', title: "Brake Pads: Replace", interval: 1000, icon: "fa-circle-stop" },
+            { id: 'c_tires_1000', title: "Tires: Replace", interval: 1000, icon: "fa-ring" }
         ];
 
         const hotspots = {
-            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions dry", "Check rebound 'Turtle'"] },
-            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque", icon: "fa-bolt", check: ["Wipe casing down (No high pressure!)", "Check mounting bolts"] },
-            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors"] },
-            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube"] },
-            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean"] },
-            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F"] }
+            fork: { title: "RockShox Psylo Silver R", sub: "130mm Coil", icon: "fa-arrow-down-up-across-line", check: ["Wipe stanchions dry", "Check rebound 'Turtle'", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            motor: { title: "Aventon A-100 Mid-Drive", sub: "100Nm Torque", icon: "fa-bolt", check: ["Wipe casing down (No high pressure!)", "Check mounting bolts", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            tires: { title: "Tires", sub: "Pressure Guide", icon: "fa-gauge-high", check: ["Tires: Check damage/inflate (20-40 PSI)"] }
         };
 
         window.onload = function() {
@@ -729,6 +895,17 @@
             }
         };
 
+        window.toggleSpecs = function(show) {
+            const m = document.getElementById('specs-modal');
+            const c = document.getElementById('specs-content');
+            if (show) {
+                m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
+            } else {
+                m.classList.add('opacity-0'); c.classList.add('scale-95');
+                setTimeout(() => m.classList.add('hidden'), 300);
+            }
+        };
+
         window.updateProfile = function() {
             appState.odometer = parseFloat(document.getElementById('settings-odo').value) || appState.odometer;
             appState.riderWeight = parseInt(document.getElementById('settings-weight').value) || appState.riderWeight;
@@ -745,6 +922,10 @@
             const logDateEl = document.getElementById('log-date');
             if(logMilesEl) logMilesEl.value = appState.odometer;
             if(logDateEl && !logDateEl.value) logDateEl.value = new Date().toISOString().split('T')[0];
+            
+            if (currentHotspot === 'tires' || currentHotspot === 'fork') {
+                selectHotspot(currentHotspot);
+            }
         }
 
         window.selectHotspot = function(id) {
@@ -768,6 +949,32 @@
                 else if (w >= 150) { st.className="bg-emerald-500/10 text-emerald-500 text-[9px] px-2 py-1 rounded border border-emerald-500/30 uppercase font-black"; st.innerText="Optimal"; }
                 else { st.className="bg-sky-500/10 text-sky-500 text-[9px] px-2 py-1 rounded border border-sky-500/30 uppercase font-black"; st.innerText="Oversprung"; }
             }
+
+            document.getElementById('tire-physics-widget').style.display = (id === 'tires') ? 'block' : 'none';
+            if(id === 'tires') {
+                // Total weight = Rider + 54lbs Bike + 10lbs Gear
+                const totalWeight = appState.riderWeight + 54 + 10;
+                document.getElementById('tire-total-weight').innerText = totalWeight;
+                
+                let tubeless = "--/--";
+                let tubes = "--/--";
+                
+                if (totalWeight < 160) {
+                    tubeless = "22/25"; tubes = "26/29";
+                } else if (totalWeight < 180) {
+                    tubeless = "24/27"; tubes = "28/31";
+                } else if (totalWeight < 200) {
+                    tubeless = "26/29"; tubes = "30/33";
+                } else if (totalWeight < 220) {
+                    tubeless = "28/31"; tubes = "32/35";
+                } else {
+                    tubeless = "30/33"; tubes = "34/37";
+                }
+                
+                document.getElementById('tire-tubeless-psi').innerText = tubeless;
+                document.getElementById('tire-tubes-psi').innerText = tubes;
+            }
+
             switchTab('tab-garage');
         };
 
