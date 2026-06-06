@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f4f4f5" id="meta-theme-color">
+    <link rel="manifest" href="manifest.json">
     <title>Ramblas ADV Maintenance</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
@@ -212,6 +214,32 @@
                     </div>
                 </div>
 
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-3">Notification Preferences</h4>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 flex flex-col gap-3 mb-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">Daily Maintenance</span>
+                                <span class="text-[9px] text-zinc-500">Tires, Chain, etc.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="settings-notify-daily" onchange="updateProfile()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-zinc-600 peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">Long-Term Service</span>
+                                <span class="text-[9px] text-zinc-500">Forks, Brakes, Overhauls</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="settings-notify-long" onchange="updateProfile()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-zinc-600 peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Manuals & Specs section added per PDF request -->
                 <div>
                     <h4 class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-3">Manuals & Quick Specs</h4>
@@ -329,7 +357,10 @@
             </div>
 
             <div class="mb-6">
-                <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 px-2">Service Checklist</h4>
+                <div class="flex justify-between items-center mb-3 px-2">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Service Checklist</h4>
+                    <button onclick="quickLogGarage()" class="text-[9px] font-bold text-sky-500 bg-sky-500/10 px-3 py-1 rounded-full active:scale-95 transition">Quick Serviced Today</button>
+                </div>
                 <div id="garage-checklist" class="flex flex-col gap-2">
                     <!-- Populated dynamically -->
                 </div>
@@ -430,6 +461,14 @@
                 </button>
             </div>
 
+            <!-- Maintenance Chart -->
+            <div class="themed-card border themed-border rounded-3xl p-4 mb-6 shadow-sm">
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Maintenance Trends</h4>
+                <div class="relative w-full h-40">
+                    <canvas id="maintenanceChart"></canvas>
+                </div>
+            </div>
+
             <div class="flex flex-col gap-4" id="radar-container">
                 <!-- Dynamically populated Component Bars -->
             </div>
@@ -494,6 +533,53 @@
     </div>
 
     <!-- BOTTOM NAVIGATION -->
+    <!-- FAB (Floating Action Button) -->
+    <button onclick="openGenericLog()" class="fixed bottom-24 right-4 z-[90] w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(16,185,129,0.5)] active:scale-90 transition">
+        <i class="fa-solid fa-plus text-2xl"></i>
+    </button>
+
+    <!-- GENERIC LOG MODAL -->
+    <div id="generic-log-modal" class="fixed inset-0 z-[100] hidden bg-zinc-200/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-card border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-transform scale-95" id="generic-log-content">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+                <h3 class="text-sm font-bold tracking-wider text-zinc-900 dark:text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-500"></i> New Log Entry
+                </h3>
+                <button onclick="closeGenericLog()" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+                <div>
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Component / System</label>
+                    <select id="generic-log-comp" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1 flex flex-col gap-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Date</label>
+                        <input type="date" id="generic-log-date" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                    <div class="flex-1 flex flex-col gap-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Mileage</label>
+                        <div class="flex items-center bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl px-3 focus-within:border-emerald-500 transition">
+                            <input type="number" step="0.1" id="generic-log-miles" class="w-full bg-transparent py-3 pl-0 text-sm font-bold text-zinc-900 dark:text-white focus:outline-none text-right">
+                            <span class="text-[10px] font-bold text-zinc-400 ml-1">mi</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1 mb-2">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-zinc-500 px-1">Action Performed</label>
+                    <textarea id="generic-log-notes" rows="3" placeholder="Notes (e.g., replaced parts, cleaned)" class="w-full bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                </div>
+                <button onclick="saveGenericLog()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2 transition active:scale-95 py-4 shadow-[0_4px_15px_rgba(16,185,129,0.2)]">
+                    <i class="fa-solid fa-check"></i> Save Log
+                </button>
+            </div>
+        </div>
+    </div>
+
     <nav class="shrink-0 glass-nav border-t themed-border z-50 pb-[env(safe-area-inset-bottom)]">
         <div class="flex justify-around items-center py-2 px-1">
             <button onclick="switchTab('tab-bike')" id="btn-tab-bike" class="nav-btn active flex flex-col items-center gap-1 w-14 py-1">
@@ -520,6 +606,13 @@
     </nav>
 
     <script>
+        // --- Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Reg failed:', err));
+            });
+        }
+
         // --- Theme ---
         function initTheme() { setTheme(localStorage.getItem('ramblas_theme') || 'system', true); }
         function setTheme(theme, init = false) {
@@ -593,8 +686,12 @@
             if (saved) {
                 try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {}
             }
-            if(!appState.components || appState.components.length === 0) appState.components = [...defaultComponents];
-            if(!appState.upgrades) appState.upgrades = [];
+            if(!appState.components || !Array.isArray(appState.components) || appState.components.length === 0) appState.components = [...defaultComponents];
+            if(!appState.upgrades || !Array.isArray(appState.upgrades)) appState.upgrades = [];
+            if(!appState.history || !Array.isArray(appState.history)) appState.history = [];
+            if(!appState.prefs || typeof appState.prefs !== 'object') appState.prefs = { notifyDaily: true, notifyLong: true };
+            if(appState.prefs.notifyDaily === undefined) appState.prefs.notifyDaily = true;
+            if(appState.prefs.notifyLong === undefined) appState.prefs.notifyLong = true;
         }
         function saveState() { localStorage.setItem(DB_KEY, JSON.stringify(appState)); }
 
@@ -623,6 +720,8 @@
                 document.getElementById('settings-odo').value = appState.odometer;
                 document.getElementById('settings-weight').value = appState.riderWeight;
                 document.getElementById('settings-height').value = appState.riderHeight || '';
+                document.getElementById('settings-notify-daily').checked = appState.prefs.notifyDaily;
+                document.getElementById('settings-notify-long').checked = appState.prefs.notifyLong;
                 m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
             } else {
                 m.classList.add('opacity-0'); c.classList.add('scale-95');
@@ -634,6 +733,8 @@
             appState.odometer = parseFloat(document.getElementById('settings-odo').value) || appState.odometer;
             appState.riderWeight = parseInt(document.getElementById('settings-weight').value) || appState.riderWeight;
             appState.riderHeight = parseInt(document.getElementById('settings-height').value) || appState.riderHeight;
+            appState.prefs.notifyDaily = document.getElementById('settings-notify-daily').checked;
+            appState.prefs.notifyLong = document.getElementById('settings-notify-long').checked;
             saveState(); updateUIFromState(); renderAll();
         };
 
@@ -688,9 +789,51 @@
             showToast("Log Saved");
         };
 
+        window.quickLogGarage = function() {
+            const dateStr = new Date().toISOString().split('T')[0];
+            createLog(hotspots[currentHotspot].title, hotspots[currentHotspot].icon, appState.odometer, dateStr, "Quick Serviced Today (Checklist Completed)");
+            document.querySelectorAll('#garage-checklist input').forEach(cb => cb.checked = false);
+            showToast("Quick Log Saved");
+        };
+
+        window.openGenericLog = function() {
+            const m = document.getElementById('generic-log-modal');
+            const c = document.getElementById('generic-log-content');
+            const sel = document.getElementById('generic-log-comp');
+            sel.innerHTML = appState.components.map(comp => `<option value="${comp.id}">${comp.title}</option>`).join('');
+            document.getElementById('generic-log-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('generic-log-miles').value = appState.odometer;
+            document.getElementById('generic-log-notes').value = '';
+            m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
+        };
+
+        window.closeGenericLog = function() {
+            const m = document.getElementById('generic-log-modal');
+            const c = document.getElementById('generic-log-content');
+            m.classList.add('opacity-0'); c.classList.add('scale-95');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        };
+
+        window.saveGenericLog = function() {
+            const compId = document.getElementById('generic-log-comp').value;
+            const dateInput = document.getElementById('generic-log-date').value;
+            const milesInput = parseFloat(document.getElementById('generic-log-miles').value);
+            const noteArea = document.getElementById('generic-log-notes').value.trim();
+
+            if(!dateInput) return showToast("Select a date!");
+            if(isNaN(milesInput)) return showToast("Enter valid mileage!");
+            if(!noteArea) return showToast("Enter a note first!");
+
+            const comp = appState.components.find(c => c.id === compId);
+            createLog(comp.title, comp.icon, milesInput, dateInput, noteArea);
+            
+            closeGenericLog();
+            showToast("Log Saved");
+        };
+
         function createLog(systemName, iconClass, miles, dateStr, note) {
             appState.history.unshift({ id: Date.now().toString(), dateStr, miles, system: systemName, icon: iconClass, note });
-            if(miles > appState.odometer) { appState.odometer = miles; updateUIFromState(); }
+            // Odomether logic: Removed the automatic greater-than update to ensure independent Odometer baseline.
             saveState(); renderAll();
         }
 
@@ -704,16 +847,69 @@
             return { milesSince, lastDate, lastMiles };
         }
 
+        let chartInstance = null;
+        window.renderChart = function() {
+            const ctx = document.getElementById('maintenanceChart');
+            if(!ctx || typeof Chart === 'undefined') return;
+            
+            const systemCounts = {};
+            appState.history.forEach(log => {
+                systemCounts[log.system] = (systemCounts[log.system] || 0) + 1;
+            });
+            
+            const labels = Object.keys(systemCounts);
+            const data = Object.values(systemCounts);
+            
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#a1a1aa' : '#52525b'; // zinc-400 : zinc-600
+            
+            if (chartInstance) chartInstance.destroy();
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['No Data'],
+                    datasets: [{
+                        label: 'Services Logged',
+                        data: data.length > 0 ? data : [0],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0, color: textColor }, grid: { color: isDark ? '#27272a' : '#e4e4e7' } },
+                        x: { ticks: { color: textColor, maxRotation: 45, minRotation: 45 }, grid: { display: false } }
+                    }
+                }
+            });
+        };
+
         window.renderReports = function() {
+            renderChart();
             const radar = document.getElementById('radar-container');
             if(appState.components.length === 0) return radar.innerHTML = `<p class="text-xs text-zinc-500 text-center py-4">No components tracked.</p>`;
             
             radar.innerHTML = appState.components.map(comp => {
                 const stats = getComponentStats(comp);
                 const pct = Math.min(100, (stats.milesSince / comp.interval) * 100);
-                let textCol = stats.milesSince >= comp.interval ? 'text-red-500' : 'text-zinc-900 dark:text-white';
-                let bgCol = stats.milesSince >= comp.interval ? 'bg-red-500' : 'bg-emerald-500';
-                let cardClass = stats.milesSince >= comp.interval ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]' : 'themed-border shadow-sm';
+                
+                let textCol = 'text-zinc-900 dark:text-white';
+                let bgCol = 'bg-emerald-500';
+                let cardClass = 'themed-border shadow-sm';
+
+                if (pct >= 100) {
+                    textCol = 'text-red-500';
+                    bgCol = 'bg-red-500';
+                    cardClass = 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]';
+                } else if (pct >= 80) {
+                    textCol = 'text-amber-500';
+                    bgCol = 'bg-amber-500';
+                    cardClass = 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.15)]';
+                }
 
                 return `
                 <div class="themed-card border rounded-2xl p-4 cursor-pointer active:scale-95 transition ${cardClass}" onclick="openComponentManager('${comp.id}')">
@@ -806,6 +1002,10 @@
             let alerts = [];
 
             appState.components.forEach(comp => {
+                const isDaily = comp.interval < 100;
+                if(isDaily && !appState.prefs.notifyDaily) return;
+                if(!isDaily && !appState.prefs.notifyLong) return;
+
                 const stats = getComponentStats(comp);
                 if(stats.milesSince >= comp.interval) {
                     alerts.push(`<div class="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-3 rounded-xl flex items-center justify-between text-xs shadow-sm cursor-pointer" onclick="switchTab('tab-reports')">
@@ -853,16 +1053,34 @@
             }).join('');
         };
 
+        window.historyLimit = 10;
+        
+        window.loadMoreHistory = function() {
+            window.historyLimit += 10;
+            renderHistory();
+        };
+
         window.renderHistory = function() {
             const list = document.getElementById('history-list');
             if (appState.history.length === 0) return list.innerHTML = `<div class="text-center py-6 text-zinc-500 text-xs">No service logs yet.</div>`;
-            list.innerHTML = appState.history.map(log => `
+            
+            const logsToRender = appState.history.slice(0, window.historyLimit);
+            
+            list.innerHTML = logsToRender.map(log => `
                 <div class="themed-card border themed-border rounded-2xl p-4 relative shadow-sm">
                     <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><i class="fa-solid ${log.icon} text-emerald-500 text-xs"></i><span class="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">${log.system}</span></div><span class="text-[9px] text-zinc-400 font-mono">${log.dateStr}</span></div>
                     <p class="text-xs text-zinc-700 dark:text-zinc-300 mb-3">${log.note}</p>
                     <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-sky-500 bg-sky-500/10 px-2 py-1 rounded">@ ${log.miles} mi</span><button onclick="deleteLog('${log.id}')" class="text-zinc-300 hover:text-red-500 transition px-2 py-1"><i class="fa-solid fa-trash-can"></i></button></div>
                 </div>
             `).join('');
+            
+            if (appState.history.length > window.historyLimit) {
+                list.innerHTML += `
+                    <button onclick="loadMoreHistory()" class="w-full mt-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs py-3 rounded-xl transition">
+                        Load More Logs
+                    </button>
+                `;
+            }
         };
 
         window.deleteLog = function(id) { appState.history = appState.history.filter(l => l.id !== id); saveState(); renderAll(); };
