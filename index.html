@@ -256,9 +256,12 @@
                             <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">Tire Pressure limits</span>
                             <span class="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded">20 - 40 PSI</span>
                         </div>
-                        <a href="https://drop.ui.com/9df1f725-f26b-40fb-80c1-6d568fe04b0e" target="_blank" rel="noopener noreferrer" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
+                        <a href="https://stgeorgestorage.com/wp-content/uploads/2026/06/V2-RAMBLAS-ADV_English_comp.pdf" target="_blank" rel="noopener noreferrer" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
                             <i class="fa-solid fa-file-pdf"></i> Open Full Manual (PDF)
                         </a>
+                        <button onclick="toggleSpecs(true)" class="mt-2 w-full bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-wrench"></i> Maintenance & Torque Specs
+                        </button>
                     </div>
                 </div>
 
@@ -278,6 +281,115 @@
                             <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-bold text-xs py-2 rounded-lg">Yes, Delete</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPECS MODAL -->
+    <div id="specs-modal" class="fixed inset-0 z-[100] hidden bg-zinc-200/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-card border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-lg overflow-y-auto max-h-[90vh] shadow-2xl transform transition-transform" id="specs-content">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 sticky top-0 z-10">
+                <h3 class="text-sm font-bold tracking-wider text-zinc-900 dark:text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-wrench text-amber-500"></i> Maintenance & Torque Specs
+                </h3>
+                <button onclick="toggleSpecs(false)" class="text-zinc-500 hover:text-zinc-900 dark:text-white w-8 h-8 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 flex flex-col gap-6">
+                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-600 dark:text-red-400 text-xs font-medium">
+                    <span class="font-bold uppercase tracking-widest text-[10px] block mb-1">Notice</span>
+                    If you do not have the experience, skill, or appropriate tools to complete these maintenance tasks, Aventon highly recommends having a certified, reputable bike mechanic perform these procedures.
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3">Master Maintenance & Service Schedule</h4>
+                    <div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+                            <thead class="bg-zinc-100 dark:bg-zinc-900/50 text-[10px] uppercase font-bold text-zinc-500">
+                                <tr>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Interval</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Component</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Task</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Torque Spec</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/50 bg-white dark:bg-zinc-900">
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Tires</td><td class="px-3 py-2">Check for damage; inflate to 20–40 PSI.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Brakes</td><td class="px-3 py-2">Ensure levers are firm and do not touch handlebar.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Battery</td><td class="px-3 py-2">Check charge level; ensure it is locked to the frame.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Every Ride</td><td class="px-3 py-2">Electrical</td><td class="px-3 py-2">Check connectors are seated and free from moisture.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">50–100 mi</td><td class="px-3 py-2">All Hardware</td><td class="px-3 py-2">Inspect for loosening; check spokes and bolted connections.</td><td class="px-3 py-2 font-mono">Refer to bolt spec</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Frame</td><td class="px-3 py-2">Wipe down with a damp cloth.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Drivetrain</td><td class="px-3 py-2">Check alignment of chain, freewheel, chainring, derailleur.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">100–200 mi</td><td class="px-3 py-2">Derailleur</td><td class="px-3 py-2">Use barrel adjuster to tension cable if needed.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Brake Pads</td><td class="px-3 py-2">Inspect alignment and wear; bleed as needed.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Shift Cables</td><td class="px-3 py-2">Clean and inspect for corrosion or fraying.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Chain</td><td class="px-3 py-2">Check for stretch; clean and lubricate.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Spokes</td><td class="px-3 py-2">Inspect tension and true the wheel if loose.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Crankset/Pedals</td><td class="px-3 py-2">Check bolt torque.</td><td class="px-3 py-2 font-mono">30–35 Nm</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">250–750 mi</td><td class="px-3 py-2">Accessories</td><td class="px-3 py-2">Inspect mounting bolts, hardware, and alignment.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Drivetrain</td><td class="px-3 py-2">Inspect chain, chainring, cassette, and derailleur.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Cables/Housing</td><td class="px-3 py-2">Inspect all; replace if worn or damaged.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Bottom Bracket</td><td class="px-3 py-2">Grease/Service.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Brake Pads</td><td class="px-3 py-2">Replace.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">750–1250 mi</td><td class="px-3 py-2">Tires</td><td class="px-3 py-2">Replace if worn or damaged.</td><td class="px-3 py-2 text-zinc-400 text-[10px]">N/A</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-sky-400 mb-3">Bolt Locking Torque Reference</h4>
+                    <p class="text-[10px] text-zinc-500 mb-2">Use this table for all hardware verification. Always match the Bolt Specification printed on or near the hardware to the correct torque value.</p>
+                    <div class="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+                            <thead class="bg-zinc-100 dark:bg-zinc-900/50 text-[10px] uppercase font-bold text-zinc-500">
+                                <tr>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Specification</th>
+                                    <th class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Torque (N.m)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/50 bg-white dark:bg-zinc-900">
+                                <tr><td class="px-3 py-2 font-medium">M5</td><td class="px-3 py-2 font-mono">5–6 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M6</td><td class="px-3 py-2 font-mono">9–10 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M7</td><td class="px-3 py-2 font-mono">11–12 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">M8</td><td class="px-3 py-2 font-mono">14–15 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Front Wheel Axle</td><td class="px-3 py-2 font-mono">9–13.5 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Pedals (Right/Left)</td><td class="px-3 py-2 font-mono">30–35 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Seat Adjustment Bolt</td><td class="px-3 py-2 font-mono">10–12 N.m</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Seatpost Clamp</td><td class="px-3 py-2 font-mono">5–7 N.m</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-3">Key DIY Maintenance Instructions</h4>
+                    <ul class="space-y-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Drivetrain:</strong> Keep the chain clean and lubricated. In wet, salty, or dusty conditions, perform this more frequently.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Wheels & Tires:</strong> Tires must be inflated within the range posted on the tire sidewalls (20–40 PSI). Rims should run true without wobbles, dents, or kinks.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Brakes:</strong> Brake levers must be firm and not touch the grips. If the system feels "spongy," the hydraulic brakes must be bled to remove air.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Bearings:</strong> Periodically check headset, wheel, pedal, and bottom bracket bearings for free movement; they should operate without excess play, grinding, or rattling.</div>
+                        </li>
+                        <li class="flex gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <div><strong class="text-zinc-900 dark:text-white">Long-Term Storage:</strong> If storing for >2 weeks, remove the battery, store it in a dry, climate-controlled location (32°F–104°F), and check/recharge the battery to 75% monthly.</div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -726,6 +838,17 @@
             } else {
                 m.classList.add('opacity-0'); c.classList.add('scale-95');
                 cancelReset(); setTimeout(() => m.classList.add('hidden'), 300);
+            }
+        };
+
+        window.toggleSpecs = function(show) {
+            const m = document.getElementById('specs-modal');
+            const c = document.getElementById('specs-content');
+            if (show) {
+                m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
+            } else {
+                m.classList.add('opacity-0'); c.classList.add('scale-95');
+                setTimeout(() => m.classList.add('hidden'), 300);
             }
         };
 
