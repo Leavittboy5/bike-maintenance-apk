@@ -427,6 +427,8 @@
                 <div class="hotspot" style="top: 72%; left: 22%;" onclick="selectHotspot('drivetrain')"></div>
                 <div class="hotspot" style="top: 28%; left: 38%;" onclick="selectHotspot('dropper')"></div>
                 <div class="hotspot" style="top: 52%; left: 62%;" onclick="selectHotspot('battery')"></div>
+                <div class="hotspot" style="top: 75%; left: 80%;" onclick="selectHotspot('tires')"></div>
+                <div class="hotspot" style="top: 75%; left: 15%;" onclick="selectHotspot('tires')"></div>
                 
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-[10px] uppercase tracking-widest font-black text-white shadow-xl whitespace-nowrap">
                     Tap a component
@@ -466,6 +468,42 @@
                 <p class="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
                     At <span id="physics-weight-display" class="font-bold text-zinc-900 dark:text-white">217</span> lbs, the stock medium coil sits deep. Keep rebound dampening at <strong>"Turtle" (Slow)</strong> to prevent violent top-outs.
                 </p>
+            </div>
+
+            <div id="tire-physics-widget" class="themed-card border themed-border rounded-3xl p-5 mb-6 shadow-sm" style="display: none;">
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-gauge-high"></i> Tire Pressure Calculator
+                </h4>
+
+                <div class="flex items-center justify-between bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 mb-4">
+                    <div class="text-[10px] uppercase font-bold text-zinc-500">Total Weight (Rider + 54lb Bike)</div>
+                    <div class="font-mono font-bold text-sm text-zinc-900 dark:text-white"><span id="tire-total-weight">--</span> lbs</div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <div class="flex-1 bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-center">
+                        <div class="text-[9px] uppercase font-black text-sky-500 mb-1">Tubeless (Ideal)</div>
+                        <div class="font-mono font-bold text-lg text-zinc-900 dark:text-white" id="tire-tubeless-psi">--/--</div>
+                        <div class="text-[8px] text-zinc-500 uppercase">F/R PSI</div>
+                    </div>
+                    <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center">
+                        <div class="text-[9px] uppercase font-black text-emerald-500 mb-1">With Tubes (Safety)</div>
+                        <div class="font-mono font-bold text-lg text-zinc-900 dark:text-white" id="tire-tubes-psi">--/--</div>
+                        <div class="text-[8px] text-zinc-500 uppercase">F/R PSI</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">Tubeless is better:</strong> Allows lower pressure for better grip & smooth ride.
+                    </div>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">Tubes need more air:</strong> Always add 3-5 PSI to prevent "pinch flats".
+                    </div>
+                    <div class="bg-zinc-50 dark:bg-zinc-900 border themed-border rounded-xl p-3 text-xs text-zinc-700 dark:text-zinc-300">
+                        <strong class="text-amber-500">The "Feel" Test:</strong> Too bouncy? Let a tiny bit of air out. Rim hitting ground? Put a tiny bit of air in.
+                    </div>
+                </div>
             </div>
 
             <div class="mb-6">
@@ -795,7 +833,8 @@
             brakes: { title: "SRAM DB6 4-Piston", sub: "Mineral Oil", icon: "fa-circle-stop", check: ["Check pad wear", "Clean rotors", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
             drivetrain: { title: "SRAM NX Eagle 12-Speed", sub: "eMTB Drivetrain", icon: "fa-gear", check: ["Measure chain stretch", "Apply Dry Wax Lube", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
             dropper: { title: "X-Fusion Manic LC", sub: "Internal Routing", icon: "fa-arrows-up-down", check: ["Wipe sliding tube clean", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
-            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] }
+            battery: { title: "708Wh Internal Battery", sub: "LG Cells", icon: "fa-battery-three-quarters", check: ["Check port seal", "Store below 104°F", "Tires: Check damage/inflate (20-40 PSI)", "Brakes: Ensure firm levers", "Battery: Check charge & lock", "Electrical: Check connectors/moisture"] },
+            tires: { title: "Tires", sub: "Pressure Guide", icon: "fa-gauge-high", check: ["Tires: Check damage/inflate (20-40 PSI)"] }
         };
 
         window.onload = function() {
@@ -883,6 +922,10 @@
             const logDateEl = document.getElementById('log-date');
             if(logMilesEl) logMilesEl.value = appState.odometer;
             if(logDateEl && !logDateEl.value) logDateEl.value = new Date().toISOString().split('T')[0];
+
+            if (currentHotspot === 'tires' || currentHotspot === 'fork') {
+                selectHotspot(currentHotspot);
+            }
         }
 
         window.selectHotspot = function(id) {
@@ -906,6 +949,32 @@
                 else if (w >= 150) { st.className="bg-emerald-500/10 text-emerald-500 text-[9px] px-2 py-1 rounded border border-emerald-500/30 uppercase font-black"; st.innerText="Optimal"; }
                 else { st.className="bg-sky-500/10 text-sky-500 text-[9px] px-2 py-1 rounded border border-sky-500/30 uppercase font-black"; st.innerText="Oversprung"; }
             }
+
+            document.getElementById('tire-physics-widget').style.display = (id === 'tires') ? 'block' : 'none';
+            if(id === 'tires') {
+                // Total weight = Rider + 54lbs Bike + 10lbs Gear
+                const totalWeight = appState.riderWeight + 54 + 10;
+                document.getElementById('tire-total-weight').innerText = totalWeight;
+
+                let tubeless = "--/--";
+                let tubes = "--/--";
+
+                if (totalWeight < 160) {
+                    tubeless = "22/25"; tubes = "26/29";
+                } else if (totalWeight < 180) {
+                    tubeless = "24/27"; tubes = "28/31";
+                } else if (totalWeight < 200) {
+                    tubeless = "26/29"; tubes = "30/33";
+                } else if (totalWeight < 220) {
+                    tubeless = "28/31"; tubes = "32/35";
+                } else {
+                    tubeless = "30/33"; tubes = "34/37";
+                }
+
+                document.getElementById('tire-tubeless-psi').innerText = tubeless;
+                document.getElementById('tire-tubes-psi').innerText = tubes;
+            }
+
             switchTab('tab-garage');
         };
 
