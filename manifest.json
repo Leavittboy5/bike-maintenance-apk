@@ -1,0 +1,20 @@
+{
+  "name": "Ramblas ADV",
+  "short_name": "Ramblas",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f5",
+  "theme_color": "#f4f4f5",
+  "icons": [
+    {
+      "src": "https://aventon-images.imgix.net/files/Ramblas-ADV-Borealis-01_0a20df8e-c83d-4548-adba-4e1fbee7258a.jpg?v=1773163832&auto=compress,format&w=192&q=25",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://aventon-images.imgix.net/files/Ramblas-ADV-Borealis-01_0a20df8e-c83d-4548-adba-4e1fbee7258a.jpg?v=1773163832&auto=compress,format&w=512&q=25",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
